@@ -20,8 +20,8 @@ This repository contains the source code for an e-commerce system developed in J
         +Long id
         +String name
         +String description
-        +double price
-        +int stockQuantity
+        +Numeric price
+        +Integer stockQuantity
         +Category category
     }
 
@@ -29,7 +29,7 @@ This repository contains the source code for an e-commerce system developed in J
         +Long id
         +LocalDateTime orderDate
         +OrderStatus status
-        +double totalAmount
+        +Numeric totalAmount
         +User user
         +List<OrderItem> orderItems
     }
@@ -37,16 +37,16 @@ This repository contains the source code for an e-commerce system developed in J
     class OrderItem {
         +Long id
         +Product product
-        +int quantity
-        +double unitPrice
-        +double subtotal
+        +Integer quantity
+        +Numeric unitPrice
+        +Numeric subtotal
         +Order order
     }
 
     class CartItem {
         +Long id
         +Product product
-        +int quantity
+        +Integr quantity
         +User user
     }
 

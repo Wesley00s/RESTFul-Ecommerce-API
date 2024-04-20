@@ -11,8 +11,8 @@ This repository contains the source code for an e-commerce system developed in J
         +String email
         +String password
         +UserType type
+        +Address addresses
         +List<Order> orders
-        +List<Address> addresses
         +List<CartItem> cartItems
     }
 
@@ -80,7 +80,7 @@ This repository contains the source code for an e-commerce system developed in J
     }
 
     User "1" --> "*" Order : has
-    User "1" --> "*" Address : has
+    User "1" --> "1" Address : has
     User "1" --> "*" CartItem : has
     Product "1" --> "0..*" OrderItem : is part of
     Product "1" --> "1" Category : belongs to

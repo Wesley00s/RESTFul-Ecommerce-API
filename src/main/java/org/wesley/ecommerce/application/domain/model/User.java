@@ -1,6 +1,8 @@
 package org.wesley.ecommerce.application.domain.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Email;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -20,11 +22,14 @@ public class User {
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID userId;
     private String name;
+    @Column(unique = true, nullable = false)
+    @Email(message = "Email is required")
     private String email;
     private String password;
     private UserType userType;
     @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     @JoinColumn(name = "cart_item_id")
+    @JsonIgnore
     private Cart cart;
 
     @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER)

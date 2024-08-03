@@ -1,6 +1,7 @@
 package org.wesley.ecommerce.application.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
@@ -15,7 +16,8 @@ import org.wesley.ecommerce.application.service.UserService;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("/ecommerce/cart-item")
+@RequestMapping("/cart-item")
+@Tag(name = "Cart Item Controller", description = "RESTFul API for managing cart items.")
 public class CartItemController {
     private final CartItemService cartItemService;
     private final ProductService productService;

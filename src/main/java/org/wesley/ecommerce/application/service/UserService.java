@@ -1,6 +1,8 @@
 package org.wesley.ecommerce.application.service;
 
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.wesley.ecommerce.application.controller.dto.LoginRequest;
 import org.wesley.ecommerce.application.domain.model.User;
 
 import java.util.List;
@@ -13,4 +15,6 @@ public interface UserService {
     User create(User user);
     User update(UUID id, User user);
     void delete(User user);
+    User findByEmail(String email);
+    boolean isLoginCorrect(LoginRequest loginRequest, BCryptPasswordEncoder bCryptPasswordEncoder);
 }

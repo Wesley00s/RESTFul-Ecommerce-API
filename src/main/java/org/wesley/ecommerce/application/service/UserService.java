@@ -16,5 +16,4 @@ public interface UserService {
     User update(UUID id, User user);
     void delete(User user);
     User findByEmail(String email);
-    boolean isLoginCorrect(LoginRequest loginRequest, BCryptPasswordEncoder bCryptPasswordEncoder);
 }

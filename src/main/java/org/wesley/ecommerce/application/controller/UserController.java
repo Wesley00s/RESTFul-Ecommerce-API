@@ -2,6 +2,7 @@ package org.wesley.ecommerce.application.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.persistence.EntityNotFoundException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.transaction.annotation.Transactional;
@@ -26,8 +27,7 @@ import java.util.UUID;
 @Tag(name = "Users Controller", description = "RESTFul API for managing users.")
 public class UserController {
     private final UserService userService;
-    private final CartItemService cartItemService;
-    private final BCryptPasswordEncoder bCryptPasswordEncoder;
+
 
     /**
      * Constructor for UserController.
@@ -38,37 +38,6 @@ public class UserController {
      */
     public UserController(UserService userService, CartItemService cartItemService, BCryptPasswordEncoder bCryptPasswordEncoder) {
         this.userService = userService;
-        this.cartItemService = cartItemService;
-        this.bCryptPasswordEncoder = bCryptPasswordEncoder;
-    }
-
-    /**
-     * Create a new user and return the created user's data.
-     *
-     * @param user User data to be created.
-     * @return ResponseEntity containing the created user's data.
-     */
-    @Transactional
-    @PostMapping
-    @Operation(summary = "Create a new user", description = "Create a new user and return the created user's data")
-    public ResponseEntity<UserDTO> createUser(@RequestBody UserDTO user) {
-
-        var userToCreate = user.from();
-        userToCreate.setPassword(bCryptPasswordEncoder.encode(user.password()));
-
-        var userCreated = userService.create(userToCreate);
-
-        var emptyCartItem = cartItemService.create(new Cart(new Random().nextLong(), null, 0, userCreated));
-
-        userCreated.setCart(emptyCartItem);
-        userService.update(userCreated.getUserId(), userCreated);
-
-        var location = ServletUriComponentsBuilder
-                .fromCurrentRequest()
-                .path("/{id}")
-                .buildAndExpand(userCreated.getUserId())
-                .toUri();
-        return ResponseEntity.created(location).body(UserDTO.fromUser(userCreated));
     }
 
     /**
@@ -81,6 +50,7 @@ public class UserController {
     @Operation(summary = "Get a user by ID", description = "Retrieve a specific user based on its ID")
     public ResponseEntity<UserDTO> getUser(@PathVariable UUID id) {
         var user = userService.findById(id);
+
         var userDTO = new UserDTO(
                 user.getName(),
                 user.getEmail(),

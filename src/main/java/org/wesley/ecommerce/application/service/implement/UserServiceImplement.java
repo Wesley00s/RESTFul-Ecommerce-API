@@ -1,11 +1,14 @@
 package org.wesley.ecommerce.application.service.implement;
 
+import jakarta.persistence.EntityNotFoundException;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.wesley.ecommerce.application.controller.dto.LoginRequest;
 import org.wesley.ecommerce.application.domain.model.User;
 import org.wesley.ecommerce.application.domain.repository.UserRepository;
 import org.wesley.ecommerce.application.service.UserService;
+
 
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -41,8 +44,8 @@ public class UserServiceImplement implements UserService {
      */
     @Override
     public User findById(UUID id) {
-        var user = userRepository.findById(id);
-        return user.orElseThrow(NoSuchElementException::new);
+        return userRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("User not found with id " + id));
     }
 
     /**
@@ -113,19 +116,6 @@ public class UserServiceImplement implements UserService {
      */
     @Override
     public User findByEmail(String email) {
-        return userRepository.findByEmail(email).orElseThrow(() -> new NoSuchElementException("User not found with email: " + email));
-    }
-
-    /**
-     * Checks if the provided login credentials are correct.
-     *
-     * @param loginRequest The login request containing email and password.
-     * @param bCryptPasswordEncoder The BCryptPasswordEncoder for password comparison.
-     * @return True if the credentials are correct, false otherwise.
-     */
-    @Override
-    public boolean isLoginCorrect(LoginRequest loginRequest, BCryptPasswordEncoder bCryptPasswordEncoder) {
-        User user = findByEmail(loginRequest.email());
-        return bCryptPasswordEncoder.matches(loginRequest.password(), user.getPassword());
+        return userRepository.findByEmail(email).orElseThrow(() -> new UsernameNotFoundException("User not found with email: " + email));
     }
 }

@@ -1,75 +1,77 @@
 package org.wesley.ecommerce.application.controller;
 
-import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.jwt.JwtClaimsSet;
-import org.springframework.security.oauth2.jwt.JwtEncoder;
 import org.springframework.security.oauth2.jwt.JwtEncoderParameters;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
+import org.wesley.ecommerce.application.config.security.TokenService;
 import org.wesley.ecommerce.application.controller.dto.LoginRequest;
 import org.wesley.ecommerce.application.controller.dto.LoginResponse;
+import org.wesley.ecommerce.application.controller.dto.RegisterResponseDTO;
+import org.wesley.ecommerce.application.controller.dto.UserDTO;
+import org.wesley.ecommerce.application.domain.model.Cart;
+import org.wesley.ecommerce.application.service.CartItemService;
 import org.wesley.ecommerce.application.service.UserService;
 
-import java.time.Instant;
+import java.util.Random;
 
-/**
- * This class is responsible for managing token generation and validation for OAuth configurations.
- * It provides a RESTful endpoint for user login using OAuth.
- *
- * @author Wesley
- * @since 1.0
- */
+
 @RestController("/ecommerce")
 @Tag(name = "Token Controller", description = "Managing token via OAuth configurations")
+@RequiredArgsConstructor
 public class TokenController {
-    private final JwtEncoder jwtEncoder;
+    private final PasswordEncoder passwordEncoder;
     private final UserService userService;
+    private final TokenService tokenService;
+    private final CartItemService cartItemService;
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
 
-    /**
-     * Constructor for TokenController.
-     *
-     * @param jwtEncoder            The JWT encoder for generating and validating JWT tokens.
-     * @param userService           The service for managing user data.
-     * @param bCryptPasswordEncoder The encoder for hashing and comparing passwords.
-     */
-    public TokenController(JwtEncoder jwtEncoder, UserService userService, BCryptPasswordEncoder bCryptPasswordEncoder) {
-        this.jwtEncoder = jwtEncoder;
-        this.userService = userService;
-        this.bCryptPasswordEncoder = bCryptPasswordEncoder;
-    }
 
-    /**
-     * Endpoint for user login using OAuth.
-     *
-     * @param loginRequest The request containing the user's email and password.
-     * @return A ResponseEntity containing the JWT token and its expiration time if the login is successful.
-     *         Throws a BadCredentialsException if the email or password is invalid.
-     */
+
     @PostMapping("/login-oauth")
-    @Operation(summary = "Log in via OAuth", description = "Allows a user to log in using OAuth.")
     public ResponseEntity<LoginResponse> login(@RequestBody LoginRequest loginRequest) {
         var user = userService.findByEmail(loginRequest.email());
-        if (user == null || !userService.isLoginCorrect(loginRequest, bCryptPasswordEncoder)) {
-            throw new BadCredentialsException("Invalid email or password");
+
+        if (passwordEncoder.matches(loginRequest.password(), user.getPassword())) {
+
+            String token = tokenService.generateToken(user.getEmail());
+
+            return ResponseEntity.ok(new LoginResponse(token, user.getEmail()));
+
+
         }
+        return ResponseEntity.badRequest().build();
 
-        var now = Instant.now();
-        var expireIn = 300L;
+    }
 
-        var claims = JwtClaimsSet.builder()
-                .issuer("https://github.com/Wesley00s/RESTFul-Ecommerce-API")
-                .subject(loginRequest.email())
-                .issuedAt(now)
-                .expiresAt(now.plusSeconds(expireIn))
-                .build();
+    @PostMapping("/register")
+    @Transactional
+    public ResponseEntity<RegisterResponseDTO> register(@RequestBody UserDTO user) {
+        var userToCreate = user.from();
+        userToCreate.setPassword(bCryptPasswordEncoder.encode(user.password()));
 
-        var jwtValue = jwtEncoder.encode(JwtEncoderParameters.from(claims)).getTokenValue();
-        return ResponseEntity.ok(new LoginResponse(jwtValue, expireIn));
+
+        var userCreated = userService.create(userToCreate);
+        var emptyCartItem = cartItemService.create(new Cart(new Random().nextLong(), null, 0, userCreated));
+
+        userCreated.setCart(emptyCartItem);
+        userService.update(userCreated.getUserId(), userCreated);
+
+
+        var location = ServletUriComponentsBuilder
+                .fromCurrentRequest()
+                .path("/{id}")
+                .buildAndExpand(userCreated.getUserId())
+                .toUri();
+        String token = tokenService.generateToken(userToCreate.getEmail());
+        return ResponseEntity.created(location).body(new RegisterResponseDTO(UserDTO.fromUser(userCreated), token));
     }
 }

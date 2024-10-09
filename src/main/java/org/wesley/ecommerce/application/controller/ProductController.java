@@ -2,6 +2,7 @@ package org.wesley.ecommerce.application.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
@@ -19,17 +20,10 @@ import java.util.List;
 @RestController
 @RequestMapping("/product")
 @Tag(name = "Product Controller", description = "RESTFul API for managing products.")
+@RequiredArgsConstructor
+
 public class ProductController {
     final private ProductService productService;
-
-    /**
-     * Constructor for the ProductController.
-     *
-     * @param productService The service for managing products.
-     */
-    public ProductController(ProductService productService) {
-        this.productService = productService;
-    }
 
     /**
      * Creates a new product.

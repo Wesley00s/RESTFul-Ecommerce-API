@@ -1,8 +1,36 @@
-datasource:
-  url: jdbc:postgresql://${PGHOST}:${PGPORT}/${PGDATABASE}
-  username: ${PGUSER}
-  password: ${PGPASSWORD}
-jpa:
-  open-in-view: false
-  hibernate:
-    ddl-auto: validate
+jwt:
+  issuer: "https://github.com/Wesley00s"
+  public:
+    key: classpath:app.pub
+  private:
+    key: classpath:app.key
+
+spring:
+  devtools:
+    livereload:
+      enabled: true
+      port: 8000
+    restart:
+      enabled: true
+  datasource:
+    url: jdbc:postgresql://localhost:5432/ecommerce
+    username: postgres
+    password: 1234
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    show-sql: true
+    open-in-view: true
+    hibernate:
+      ddl-auto: validate
+    properties:
+      hibernate:
+        format_sql: true
+
+server:
+  port: 8080
+  address: 0.0.0.0
+  servlet:
+    context-path: /ecommerce
+    session:
+      timeout: 30m
+

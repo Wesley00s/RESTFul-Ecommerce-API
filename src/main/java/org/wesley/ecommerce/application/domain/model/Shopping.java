@@ -6,11 +6,12 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-@AllArgsConstructor
+
 @NoArgsConstructor
+@AllArgsConstructor
 @Getter
 @Setter
-@Entity(name = "db_shopping")
+@Entity(name = "shopping")
 public class Shopping {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -22,10 +23,4 @@ public class Shopping {
     @JoinColumn(name = "product_id")
     Product product;
     private Integer quantity;
-
-    public Shopping(Cart cartToUpdate, Product product, Integer quantity) {
-        this.cart = cartToUpdate;
-        this.product = product;
-        this.quantity = quantity;
-    }
 }

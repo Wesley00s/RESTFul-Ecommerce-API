@@ -91,4 +91,9 @@ public class ProductServiceImplement implements ProductService {
             throw new NoSuchElementException("Product with id " + product.getProductId() + " not found for delete");
         }
     }
+
+    @Override
+    public void updateQuantityStock(Long productId, int quantity) {
+        productRepository.updateQuantityStock(productId, quantity);
+    }
 }

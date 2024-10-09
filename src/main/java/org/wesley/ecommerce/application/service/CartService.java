@@ -4,12 +4,15 @@ import org.springframework.stereotype.Service;
 import org.wesley.ecommerce.application.domain.model.Cart;
 
 import java.util.List;
+import java.util.UUID;
 
 @Service
-public interface CartItemService {
+public interface CartService {
     Cart create(Cart cart);
     Cart findById(Long id);
     List<Cart> findAll();
-    Cart getProducts(Long id, Long productId, Integer quantity);
     void delete(Cart cart);
+    Cart findCartByUserId(UUID userId, Long cartId);
+
+//    boolean isCartOwnedByUser(Long cartId, UUID userId);
 }

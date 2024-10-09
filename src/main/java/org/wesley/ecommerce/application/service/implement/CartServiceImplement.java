@@ -3,31 +3,34 @@ package org.wesley.ecommerce.application.service.implement;
 import org.springframework.stereotype.Service;
 import org.wesley.ecommerce.application.domain.model.Cart;
 import org.wesley.ecommerce.application.domain.repository.CartItemRepository;
-import org.wesley.ecommerce.application.domain.repository.ProductRepository;
-import org.wesley.ecommerce.application.service.CartItemService;
+import org.wesley.ecommerce.application.service.CartService;
 
 import java.util.List;
 import java.util.NoSuchElementException;
+import java.util.UUID;
 
 /**
  * This class implements the CartItemService interface and provides methods for managing cart items.
  * It uses Spring's @Service annotation to mark it as a service component.
  */
 @Service
-public class CartItemServiceImplement implements CartItemService {
+public class CartServiceImplement implements CartService {
     private final CartItemRepository cartItemRepository;
-    private final ProductRepository productRepository;
 
     /**
      * Constructor for CartItemServiceImplement.
      *
      * @param cartItemRepository The repository for managing cart items.
-     * @param productRepository The repository for managing products.
+     * @param productRepository  The repository for managing products.
      */
-    public CartItemServiceImplement(CartItemRepository cartItemRepository, ProductRepository productRepository) {
+    public CartServiceImplement(CartItemRepository cartItemRepository) {
         this.cartItemRepository = cartItemRepository;
-        this.productRepository = productRepository;
     }
+
+//    @Override
+//    public void linkUsersToCart(UUID userId, Long cartId) {
+//        this.cartItemRepository.linkUserToCart(cartId, userId);
+//    }
 
     /**
      * Creates a new cart item.
@@ -70,37 +73,23 @@ public class CartItemServiceImplement implements CartItemService {
      */
     @Override
     public void delete(Cart cart) {
-        if(cartItemRepository.existsById(cart.getCartId())){
+        if (cartItemRepository.existsById(cart.getCartId())) {
             cartItemRepository.deleteById(cart.getCartId());
         } else {
             throw new NoSuchElementException("Cart item with id " + cart.getCartId() + " found for delete");
         }
     }
 
-    /**
-     * Adds products to a cart item.
-     *
-     * @param id The ID of the cart item.
-     * @param productId The ID of the product to be added.
-     * @param quantity The quantity of the product to be added.
-     * @return The updated cart item.
-     * @throws NoSuchElementException If no cart item or product is found with the given IDs.
-     * @throws IllegalArgumentException If the requested quantity exceeds the available stock.
-     */
     @Override
-    public Cart getProducts(Long id, Long productId, Integer quantity) {
-        var product = productRepository.findById(productId)
-                .orElseThrow(() -> new NoSuchElementException("Product with id " + productId + " not found"));
-        var cartItem = cartItemRepository.findById(id)
-                .orElseThrow(() -> new NoSuchElementException("Cart item not found for ID: " + id));
-        var currentStock = product.getStockQuantity();
-
-        if (product.getStockQuantity() < quantity) {
-            product.setStockQuantity(currentStock - quantity); ;
-        } else {
-            throw new IllegalArgumentException("Requested quantity exceeds available stock.");
-        }
-        return cartItemRepository.save(cartItem);
+    public Cart findCartByUserId(UUID userId, Long cartId) {
+        return cartItemRepository.findCartByUserId(userId, cartId);
     }
+
+//    @Override
+//    public boolean isCartOwnedByUser(Long cartId, UUID userId) {
+//        var cart = findById(cartId);
+//        return cart != null && cartItemRepository.findCartByUserId(userId) != null;
+//    }
+//
 
 }

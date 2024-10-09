@@ -9,4 +9,5 @@ import org.wesley.ecommerce.application.domain.model.Shopping;
 public interface ShoppingService {
     Shopping create(Shopping shopping);
     Shopping findById(Long id);
+
 }

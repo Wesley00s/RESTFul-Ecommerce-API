@@ -2,19 +2,15 @@ package org.wesley.ecommerce.application.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import jakarta.persistence.EntityNotFoundException;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import org.wesley.ecommerce.application.controller.dto.UserDTO;
-import org.wesley.ecommerce.application.domain.model.Cart;
-import org.wesley.ecommerce.application.service.CartItemService;
+import org.wesley.ecommerce.application.service.CartService;
 import org.wesley.ecommerce.application.service.UserService;
 
 import java.util.List;
-import java.util.Random;
 import java.util.UUID;
 
 /**
@@ -25,20 +21,10 @@ import java.util.UUID;
 @RestController
 @RequestMapping("/user")
 @Tag(name = "Users Controller", description = "RESTFul API for managing users.")
+@RequiredArgsConstructor
+
 public class UserController {
     private final UserService userService;
-
-
-    /**
-     * Constructor for UserController.
-     *
-     * @param userService       Service for managing user data.
-     * @param cartItemService   Service for managing cart items.
-     * @param bCryptPasswordEncoder Encoder for password hashing.
-     */
-    public UserController(UserService userService, CartItemService cartItemService, BCryptPasswordEncoder bCryptPasswordEncoder) {
-        this.userService = userService;
-    }
 
     /**
      * Retrieve a specific user based on its ID.

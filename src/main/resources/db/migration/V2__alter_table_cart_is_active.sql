@@ -1,0 +1,5 @@
+ALTER TABLE cart
+    ADD is_active BOOLEAN DEFAULT TRUE;
+
+ALTER TABLE cart
+    ALTER COLUMN is_active SET NOT NULL;

@@ -13,6 +13,5 @@ public interface CartService {
     List<Cart> findAll();
     void delete(Cart cart);
     Cart findCartByUserId(UUID userId, Long cartId);
-
-//    boolean isCartOwnedByUser(Long cartId, UUID userId);
+    void disableCart(Long cartId);
 }

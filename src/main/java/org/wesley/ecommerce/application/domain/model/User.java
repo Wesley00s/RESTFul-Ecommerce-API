@@ -11,6 +11,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.wesley.ecommerce.application.domain.enumeration.UserType;
 
+import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.List;
 import java.util.UUID;
@@ -37,10 +38,16 @@ public class User implements UserDetails {
     @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     @JoinColumn(name = "address_id")
     private Address address;
+    private LocalDateTime createdAt;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return List.of(new org.springframework.security.core.authority.SimpleGrantedAuthority("ROLE_" + this.userType.name()));
+    }
+
+    @PrePersist
+    protected void onCreate() {
+        this.createdAt = LocalDateTime.now();
     }
 
     @Override

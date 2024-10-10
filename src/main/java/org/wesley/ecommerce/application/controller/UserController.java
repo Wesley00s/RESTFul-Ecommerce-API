@@ -13,11 +13,7 @@ import org.wesley.ecommerce.application.service.UserService;
 import java.util.List;
 import java.util.UUID;
 
-/**
- * Controller for managing users.
- *
- * @author Wesley
- */
+
 @RestController
 @RequestMapping("/user")
 @Tag(name = "Users Controller", description = "RESTFul API for managing users.")
@@ -26,12 +22,6 @@ import java.util.UUID;
 public class UserController {
     private final UserService userService;
 
-    /**
-     * Retrieve a specific user based on its ID.
-     *
-     * @param id ID of the user to be retrieved.
-     * @return ResponseEntity containing the retrieved user's data.
-     */
     @GetMapping("/{id}")
     @Operation(summary = "Get a user by ID", description = "Retrieve a specific user based on its ID")
     public ResponseEntity<UserDTO> getUser(@PathVariable UUID id) {
@@ -45,7 +35,8 @@ public class UserController {
                 user.getAddress().getStreet(),
                 user.getAddress().getCity(),
                 user.getAddress().getState(),
-                user.getAddress().getZip()
+                user.getAddress().getZip(),
+                user.getCreatedAt()
         );
         return ResponseEntity.ok(userDTO);
     }
@@ -63,16 +54,12 @@ public class UserController {
                         user.getAddress().getStreet(),
                         user.getAddress().getCity(),
                         user.getAddress().getState(),
-                        user.getAddress().getZip()
+                        user.getAddress().getZip(),
+                        user.getCreatedAt()
                 )).toList();
         return ResponseEntity.ofNullable(usersDTO);
     }
 
-    /**
-     * Retrieve a list of all registered users.
-     *
-     * @return ResponseEntity containing a list of all registered users.
-     */
     @DeleteMapping("/delete/{id}")
     @Operation(summary = "Remove user", description = "Remove user by ID")
     public ResponseEntity<Void> deleteUser(@PathVariable UUID id) {
@@ -81,13 +68,6 @@ public class UserController {
         return ResponseEntity.noContent().build();
     }
 
-    /**
-     * Update the data of an existing user based on its ID.
-     *
-     * @param id       ID of the user to be updated.
-     * @param userDTO Updated user data.
-     * @return ResponseEntity containing the updated user's data.
-     */
     @Operation(summary = "Update a user", description = "Update the data of an existing user based on its ID")
     @PutMapping("/update/{id}")
     public ResponseEntity<UserDTO> updateUser(@PathVariable UUID id, @RequestBody UserDTO userDTO) {

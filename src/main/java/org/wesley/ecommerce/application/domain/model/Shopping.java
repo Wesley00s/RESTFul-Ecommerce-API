@@ -6,6 +6,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.time.LocalDateTime;
+
 
 @NoArgsConstructor
 @AllArgsConstructor
@@ -23,4 +25,11 @@ public class Shopping {
     @JoinColumn(name = "product_id")
     Product product;
     private Integer quantity;
+    private LocalDateTime createdAt;
+
+    @PrePersist
+    protected void onCreate() {
+        this.createdAt = LocalDateTime.now();
+    }
+
 }

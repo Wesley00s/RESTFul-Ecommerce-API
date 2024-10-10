@@ -4,16 +4,20 @@ import org.wesley.ecommerce.application.domain.model.Cart;
 import org.wesley.ecommerce.application.domain.model.Product;
 import org.wesley.ecommerce.application.domain.model.Shopping;
 
+import java.time.LocalDateTime;
+
 public record ShoppingDTO(
         Long cartId,
         Long productId,
-        Integer quantity
+        Integer quantity,
+        LocalDateTime createAt
 ) {
     public static ShoppingDTO fromDTO(Shopping shopping) {
         return new ShoppingDTO(
                 shopping.getCart().getCartId(),
                 shopping.getProduct().getProductId(),
-                shopping.getQuantity()
+                shopping.getQuantity(),
+                shopping.getCreatedAt()
         );
     }
 
@@ -26,6 +30,7 @@ public record ShoppingDTO(
         shopping.setCart(cart);
         shopping.setProduct(product);
         shopping.setQuantity(this.quantity);
+        shopping.setCreatedAt(this.createAt);
         return shopping;
     }
 }

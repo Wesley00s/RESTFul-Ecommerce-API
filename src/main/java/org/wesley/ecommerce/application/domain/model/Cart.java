@@ -22,4 +22,5 @@ public class Cart {
     @JsonBackReference
     @ManyToOne(fetch = FetchType.LAZY)
     private User user;
+    private boolean isActive;
 }

@@ -35,7 +35,7 @@ public class TokenService {
                     .withExpiresAt(Date.from(now.plusSeconds(expirationSeconds)))
                     .sign(algorithm);
         } catch (JWTCreationException e) {
-            log.error("Erro ao criar o token JWT para o email {}: {}", email, e.getMessage());
+            log.error("Erro ao criar o token JWT para o email {} : {}", email, e.getMessage());
             throw new RuntimeException("Erro ao criar o token JWT");
         }
     }

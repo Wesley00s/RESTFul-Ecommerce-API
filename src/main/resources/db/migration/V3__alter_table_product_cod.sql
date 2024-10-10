@@ -1,0 +1,2 @@
+ALTER TABLE product
+    ADD cod VARCHAR(255);

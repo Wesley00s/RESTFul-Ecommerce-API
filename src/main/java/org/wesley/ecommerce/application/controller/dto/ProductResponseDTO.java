@@ -5,6 +5,8 @@ import org.wesley.ecommerce.application.domain.model.Product;
 
 import java.math.BigDecimal;
 
+import static org.wesley.ecommerce.application.controller.dto.ProductRequestDTO.getProduct;
+
 
 public record ProductResponseDTO(
         String code,
@@ -29,14 +31,6 @@ public record ProductResponseDTO(
     }
 
     public Product from(String cod) {
-        Product product = new Product();
-        product.setCod(cod);
-        product.setName(this.name);
-        product.setDescription(this.description);
-        product.setPrice(this.price);
-        product.setStockQuantity(this.stockQuantity);
-        product.setImageUrl(this.imageUrl);
-        product.setCategory(this.category);
-        return product;
+        return getProduct(cod, this.name, this.description, this.price, this.stockQuantity, this.imageUrl, this.category);
     }
 }

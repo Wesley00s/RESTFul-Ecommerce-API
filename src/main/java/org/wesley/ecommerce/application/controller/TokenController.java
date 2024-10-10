@@ -1,5 +1,6 @@
 package org.wesley.ecommerce.application.controller;
 
+import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -17,16 +18,17 @@ import org.wesley.ecommerce.application.controller.dto.RegisterResponse;
 import org.wesley.ecommerce.application.controller.dto.UserDTO;
 import org.wesley.ecommerce.application.service.UserService;
 
-
 @RestController("/ecommerce")
 @Tag(name = "Token Controller", description = "Managing token via OAuth configurations")
 @RequiredArgsConstructor
 public class TokenController {
+
     private final PasswordEncoder passwordEncoder;
     private final UserService userService;
     private final TokenService tokenService;
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
 
+    @Operation(summary = "Authenticate user", description = "Authenticates a user and returns a JWT token.")
     @PostMapping("/auth")
     public ResponseEntity<LoginResponse> auth(@RequestBody LoginRequest loginRequest) {
         var user = userService.findByEmail(loginRequest.email());
@@ -40,6 +42,7 @@ public class TokenController {
         return ResponseEntity.badRequest().build();
     }
 
+    @Operation(summary = "Register a new user", description = "Registers a new user and returns a confirmation message.")
     @PostMapping("/register")
     @Transactional
     public ResponseEntity<RegisterResponse> register(@RequestBody UserDTO user) {

@@ -23,7 +23,6 @@ repositories {
 
 dependencies {
     implementation 'com.auth0:java-jwt:3.18.3'
-
     implementation 'org.apache.httpcomponents.client5:httpclient5:5.1'
     implementation 'org.apache.httpcomponents.core5:httpcore5:5.1'
     implementation group: 'org.springdoc', name: 'springdoc-openapi-starter-webmvc-ui', version: '2.5.0'
@@ -38,6 +37,8 @@ dependencies {
     runtimeOnly 'org.postgresql:postgresql'
     annotationProcessor 'org.projectlombok:lombok'
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    testImplementation 'org.mockito:mockito-core:5.14.1'
+    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.11.2'
 }
 
 tasks.named('test') {

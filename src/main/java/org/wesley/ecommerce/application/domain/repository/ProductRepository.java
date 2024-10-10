@@ -9,6 +9,6 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
 
     @Modifying
     @Query(value = "UPDATE product SET stock_quantity = ?2 WHERE product_id = ?1",
-    nativeQuery = true)
+            nativeQuery = true)
     void updateQuantityStock(Long productId, int quantity);
 }

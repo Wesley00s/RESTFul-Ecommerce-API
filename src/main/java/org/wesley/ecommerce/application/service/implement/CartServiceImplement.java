@@ -14,6 +14,7 @@ import java.util.UUID;
 @Service
 public class CartServiceImplement implements CartService {
     private final CartItemRepository cartItemRepository;
+
     public CartServiceImplement(CartItemRepository cartItemRepository) {
         this.cartItemRepository = cartItemRepository;
     }
@@ -31,15 +32,6 @@ public class CartServiceImplement implements CartService {
     @Override
     public List<Cart> findAll() {
         return cartItemRepository.findAll();
-    }
-
-    @Override
-    public void delete(Cart cart) {
-        if (cartItemRepository.existsById(cart.getCartId())) {
-            cartItemRepository.deleteById(cart.getCartId());
-        } else {
-            throw new NoSuchElementException("Cart item with id " + cart.getCartId() + " found for delete");
-        }
     }
 
     @Override

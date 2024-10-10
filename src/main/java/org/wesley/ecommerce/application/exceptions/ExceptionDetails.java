@@ -19,5 +19,4 @@ public class ExceptionDetails {
     private Integer status;
     private String exception;
     private Map<String, String> details = new HashMap<>();
-
 }

@@ -1,6 +1,5 @@
 package org.wesley.ecommerce.application.controller.dto;
 
-import jakarta.validation.constraints.Email;
 import org.wesley.ecommerce.application.domain.enumeration.UserType;
 import org.wesley.ecommerce.application.domain.model.Address;
 import org.wesley.ecommerce.application.domain.model.User;

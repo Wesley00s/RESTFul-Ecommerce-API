@@ -54,7 +54,7 @@ public class ProductServiceImplement implements ProductService {
     /**
      * Updates an existing product in the database.
      *
-     * @param id the id of the product to be updated
+     * @param id      the id of the product to be updated
      * @param product the updated product
      * @return the updated product, or throws a NoSuchElementException if not found
      */
@@ -85,7 +85,7 @@ public class ProductServiceImplement implements ProductService {
     @Override
     public void delete(Product product) {
 
-        if(productRepository.existsById(product.getProductId())) {
+        if (productRepository.existsById(product.getProductId())) {
             productRepository.deleteById(product.getProductId());
         } else {
             throw new NoSuchElementException("Product with id " + product.getProductId() + " not found for delete");

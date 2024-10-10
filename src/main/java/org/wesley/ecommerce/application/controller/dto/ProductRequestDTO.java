@@ -26,15 +26,19 @@ public record ProductRequestDTO(
         );
     }
 
-    public Product from(String cod) {
+    static Product getProduct(String cod, String name, String description, BigDecimal price, Integer stockQuantity, String imageUrl, ProductCategory category) {
         Product product = new Product();
         product.setCod(cod);
-        product.setName(this.name);
-        product.setDescription(this.description);
-        product.setPrice(this.price);
-        product.setStockQuantity(this.stockQuantity);
-        product.setImageUrl(this.imageUrl);
-        product.setCategory(this.category);
+        product.setName(name);
+        product.setDescription(description);
+        product.setPrice(price);
+        product.setStockQuantity(stockQuantity);
+        product.setImageUrl(imageUrl);
+        product.setCategory(category);
         return product;
+    }
+
+    public Product from(String cod) {
+        return getProduct(cod, this.name, this.description, this.price, this.stockQuantity, this.imageUrl, this.category);
     }
 }

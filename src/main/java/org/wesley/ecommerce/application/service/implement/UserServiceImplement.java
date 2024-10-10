@@ -2,13 +2,10 @@ package org.wesley.ecommerce.application.service.implement;
 
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
-import org.wesley.ecommerce.application.controller.dto.LoginRequest;
 import org.wesley.ecommerce.application.domain.model.User;
 import org.wesley.ecommerce.application.domain.repository.UserRepository;
 import org.wesley.ecommerce.application.service.UserService;
-
 
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -72,7 +69,7 @@ public class UserServiceImplement implements UserService {
     /**
      * Updates an existing user in the database.
      *
-     * @param id The UUID of the user to update.
+     * @param id          The UUID of the user to update.
      * @param updatedUser The updated user data.
      * @return The updated user.
      * @throws NoSuchElementException If no user is found with the given UUID.
@@ -100,7 +97,7 @@ public class UserServiceImplement implements UserService {
      */
     @Override
     public void delete(User user) {
-        if(userRepository.existsById(user.getUserId())) {
+        if (userRepository.existsById(user.getUserId())) {
             userRepository.deleteById(user.getUserId());
         } else {
             throw new NoSuchElementException("User with id " + user.getUserId() + " not found for delete");

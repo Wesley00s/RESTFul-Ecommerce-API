@@ -16,6 +16,8 @@ import java.util.NoSuchElementException;
 
 @RestControllerAdvice
 public class RestExceptionHandler {
+
+    // Handles validation errors
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ExceptionDetails> handleValidException(MethodArgumentNotValidException exception) {
         Map<String, String> errors = new HashMap<>();
@@ -43,10 +45,12 @@ public class RestExceptionHandler {
         );
     }
 
+    // Handles DataAccessException
     @ExceptionHandler(DataAccessException.class)
-    public ResponseEntity<ExceptionDetails> handleValidException(DataAccessException exception) {
+    public ResponseEntity<ExceptionDetails> handleDataAccessException(DataAccessException exception) {
         Map<String, String> errors = new HashMap<>();
-        errors.put(exception.getCause().toString(), exception.getMessage());
+        String cause = exception.getCause() != null ? exception.getCause().toString() : "No cause available";
+        errors.put(cause, exception.getMessage());
 
         return ResponseEntity.status(HttpStatus.CONFLICT).body(
                 new ExceptionDetails(
@@ -59,26 +63,30 @@ public class RestExceptionHandler {
         );
     }
 
+    // Handles NoSuchElementException
     @ExceptionHandler(NoSuchElementException.class)
-    public ResponseEntity<ExceptionDetails> handleValidException(NoSuchElementException exception) {
+    public ResponseEntity<ExceptionDetails> handleNoSuchElementException(NoSuchElementException exception) {
         Map<String, String> errors = new HashMap<>();
-        errors.put(exception.getCause().toString(), exception.getMessage());
+        String cause = exception.getCause() != null ? exception.getCause().toString() : "No cause available";
+        errors.put(cause, exception.getMessage());
 
-        return ResponseEntity.status(HttpStatus.CONFLICT).body(
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
                 new ExceptionDetails(
-                        "Conflict! Consult the documentation. Entity not found",
+                        "Entity not found! Consult the documentation.",
                         LocalDateTime.now(),
-                        HttpStatus.CONFLICT.value(),
+                        HttpStatus.NOT_FOUND.value(),
                         exception.getClass().toString(),
                         errors
                 )
         );
     }
 
+    // Handles EntityNotFoundException
     @ExceptionHandler(EntityNotFoundException.class)
     public ResponseEntity<ExceptionDetails> handleEntityNotFoundException(EntityNotFoundException exception) {
         Map<String, String> errors = new HashMap<>();
-        errors.put(exception.getCause().toString(), exception.getMessage());
+        String cause = exception.getCause() != null ? exception.getCause().toString() : "No cause available";
+        errors.put(cause, exception.getMessage());
 
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
                 new ExceptionDetails(

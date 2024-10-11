@@ -17,9 +17,8 @@ import java.math.BigDecimal;
 public class Product {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "product_id")
-    private Long productId;
-    private String cod;
+    private Long id;
+    private String code;
     private String name;
     @Column(length = 10000)
     private String description;

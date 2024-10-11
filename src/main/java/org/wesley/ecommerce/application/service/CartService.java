@@ -14,6 +14,8 @@ public interface CartService {
 
     List<Cart> findAll();
 
+    void addToCart(Long cartId, Long productId);
+
     Cart findCartByUserId(UUID userId, Long cartId);
 
     void disableCart(Long cartId);

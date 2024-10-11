@@ -7,23 +7,11 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.bind.annotation.CrossOrigin;
 
-/**
- * This class is responsible for configuring Swagger documentation for the Ecommerce API.
- * It uses the OpenAPI library to define the API's information, contact details, and other settings.
- *
- * @author Wesley
- * @version 1.0
- * @since 2024-03-08
- */
+
 @Configuration
 @CrossOrigin(origins = {"/**"})
 public class SwaggerConfig {
 
-    /**
-     * This method creates and returns an instance of OpenAPI, which is used to configure the API's documentation.
-     *
-     * @return An instance of OpenAPI with the specified API information, contact details, and other settings.
-     */
     @Bean
     public OpenAPI customOpenAPI() {
         return new OpenAPI().info(new Info()

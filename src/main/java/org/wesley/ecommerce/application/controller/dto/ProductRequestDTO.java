@@ -26,9 +26,9 @@ public record ProductRequestDTO(
         );
     }
 
-    static Product getProduct(String cod, String name, String description, BigDecimal price, Integer stockQuantity, String imageUrl, ProductCategory category) {
+    static Product getProduct(String code, String name, String description, BigDecimal price, Integer stockQuantity, String imageUrl, ProductCategory category) {
         Product product = new Product();
-        product.setCod(cod);
+        product.setCode(code);
         product.setName(name);
         product.setDescription(description);
         product.setPrice(price);

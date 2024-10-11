@@ -3,11 +3,13 @@ package org.wesley.ecommerce.application.controller;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import org.wesley.ecommerce.application.controller.dto.ProductRequestDTO;
 import org.wesley.ecommerce.application.controller.dto.ProductResponseDTO;
+import org.wesley.ecommerce.application.domain.model.Product;
 import org.wesley.ecommerce.application.service.ProductService;
 
 import java.util.ArrayList;
@@ -30,7 +32,7 @@ public class ProductController {
         var location = ServletUriComponentsBuilder
                 .fromCurrentRequest()
                 .path("/{id}")
-                .buildAndExpand(productToCreate.getProductId())
+                .buildAndExpand(productToCreate.getId())
                 .toUri();
         return ResponseEntity.created(location).body(product);
     }
@@ -50,7 +52,7 @@ public class ProductController {
     @Operation(summary = "Get a product by ID", description = "Retrieve a specific product based on its ID")
     public ResponseEntity<ProductResponseDTO> getProductById(@PathVariable Long id) {
         var product = productService.findById(id);
-        return ResponseEntity.ok(new ProductResponseDTO(product.getCod(), product.getName(), product.getDescription(), product.getPrice(), product.getStockQuantity(), product.getImageUrl(), product.getCategory()));
+        return ResponseEntity.ok(new ProductResponseDTO(product.getCode(), product.getName(), product.getDescription(), product.getPrice(), product.getStockQuantity(), product.getImageUrl(), product.getCategory()));
     }
 
     @DeleteMapping("/delete/{id}")
@@ -66,5 +68,11 @@ public class ProductController {
     public ResponseEntity<ProductResponseDTO> updateProduct(@PathVariable Long id, @RequestBody ProductResponseDTO productResponseDTO) {
         var updatedProduct = productService.update(id, productResponseDTO.from(randomCode()));
         return ResponseEntity.ok(ProductResponseDTO.fromDTO(updatedProduct));
+    }
+
+    @GetMapping("/by-cart/{cartId}")
+    public ResponseEntity<List<Product>> getProductsByCart(@PathVariable Long cartId) {
+        var products = productService.findProductsByCart(cartId);
+        return ResponseEntity.status(HttpStatus.FOUND).body(products);
     }
 }

@@ -10,17 +10,20 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 import org.wesley.ecommerce.application.controller.dto.CartDTO;
 import org.wesley.ecommerce.application.domain.model.Cart;
+import org.wesley.ecommerce.application.domain.model.Product;
 import org.wesley.ecommerce.application.service.CartService;
+import org.wesley.ecommerce.application.service.ProductService;
 import org.wesley.ecommerce.application.service.UserService;
 
 @RestController
 @RequestMapping("/cart")
 @RequiredArgsConstructor
 @Tag(name = "Cart Item Controller", description = "RESTFul API for managing cart items.")
-public class CartItemController {
+public class CartController {
 
     private final CartService cartService;
     private final UserService userService;
+    private final ProductService productService;
 
     @Operation(summary = "Create a new cart item", description = "Creates a new cart for the authenticated user.")
     @PostMapping
@@ -39,6 +42,33 @@ public class CartItemController {
         cartService.create(cart);
 
         return ResponseEntity.ok("Cart item created.");
+    }
+
+    @PostMapping("/add/{cartId}/{productId}")
+    public ResponseEntity<String> addProductToCart(@PathVariable Long cartId, @PathVariable Long productId) {
+        var authenticatedUser = (UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        var authenticatedUserId = userService.findByEmail(authenticatedUser.getUsername()).getUserId();
+        var user = userService.findById(authenticatedUserId);
+        if (user == null) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("User not found");
+        }
+        var cart = cartService.findById(cartId);
+        Product product = new Product();
+
+        productService.findAll().forEach(e -> {
+            if(e.getId().equals(productId)) {
+                product.setId(e.getId());
+                product.setName(e.getName());
+                product.setPrice(e.getPrice());
+                product.setDescription(e.getDescription());
+            }
+        });
+
+        if (cart == null) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Cart not found");
+        }
+        cartService.addToCart(cartId, productId);
+        return ResponseEntity.ok("Cart item added.");
     }
 
     @Operation(summary = "Retrieve a cart by ID", description = "Gets the details of a cart by its ID, for the authenticated user.")

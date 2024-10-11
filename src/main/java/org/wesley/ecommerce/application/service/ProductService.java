@@ -18,4 +18,6 @@ public interface ProductService {
     void delete(Product product);
 
     void updateQuantityStock(Long productId, int quantity);
+
+    List<Product> findProductsByCart(Long cartId);
 }

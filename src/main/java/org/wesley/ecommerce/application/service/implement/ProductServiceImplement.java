@@ -13,11 +13,6 @@ import java.util.Optional;
 public class ProductServiceImplement implements ProductService {
     final private ProductRepository productRepository;
 
-    /**
-     * Constructor for ProductServiceImplement.
-     *
-     * @param productRepository the product repository to be used for database operations
-     */
     public ProductServiceImplement(ProductRepository productRepository) {
         this.productRepository = productRepository;
     }
@@ -28,12 +23,6 @@ public class ProductServiceImplement implements ProductService {
         return productRepository.save(product);
     }
 
-    /**
-     * Finds a product by its id.
-     *
-     * @param id the id of the product to be found
-     * @return the found product, or throws a NoSuchElementException if not found
-     */
     @Override
     public Product findById(Long id) {
 
@@ -43,21 +32,9 @@ public class ProductServiceImplement implements ProductService {
 
     @Override
     public List<Product> findAll() {
-        /**
-         * Finds all products in the database.
-         *
-         * @return a list of all products
-         */
         return productRepository.findAll();
     }
 
-    /**
-     * Updates an existing product in the database.
-     *
-     * @param id      the id of the product to be updated
-     * @param product the updated product
-     * @return the updated product, or throws a NoSuchElementException if not found
-     */
     @Override
     public Product update(Long id, Product product) {
 
@@ -85,15 +62,24 @@ public class ProductServiceImplement implements ProductService {
     @Override
     public void delete(Product product) {
 
-        if (productRepository.existsById(product.getProductId())) {
-            productRepository.deleteById(product.getProductId());
+        if (productRepository.existsById(product.getId())) {
+            productRepository.deleteById(product.getId());
         } else {
-            throw new NoSuchElementException("Product with id " + product.getProductId() + " not found for delete");
+            throw new NoSuchElementException("Product with id " + product.getId() + " not found for delete");
         }
     }
 
     @Override
     public void updateQuantityStock(Long productId, int quantity) {
         productRepository.updateQuantityStock(productId, quantity);
+    }
+
+    @Override
+    public List<Product> findProductsByCart(Long cartId) {
+        var products = productRepository.findProductsByCart(cartId);
+        if (products.isEmpty()) {
+            throw new NoSuchElementException("No products found for cart " + cartId);
+        }
+        return productRepository.findProductsByCart(cartId);
     }
 }

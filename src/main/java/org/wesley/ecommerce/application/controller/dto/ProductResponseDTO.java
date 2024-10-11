@@ -20,7 +20,7 @@ public record ProductResponseDTO(
 
     public static ProductResponseDTO fromDTO(Product product) {
         return new ProductResponseDTO(
-                product.getCod(),
+                product.getCode(),
                 product.getName(),
                 product.getDescription(),
                 product.getPrice(),
@@ -30,7 +30,7 @@ public record ProductResponseDTO(
         );
     }
 
-    public Product from(String cod) {
-        return getProduct(cod, this.name, this.description, this.price, this.stockQuantity, this.imageUrl, this.category);
+    public Product from(String code) {
+        return getProduct(code, this.name, this.description, this.price, this.stockQuantity, this.imageUrl, this.category);
     }
 }

@@ -30,16 +30,16 @@ public class SecurityFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
         String token = this.recoveryToken(request);
-        logger.debug("Token recebido: {}", token);
+        logger.debug("Token retrieved: {}", token);
 
         if (token != null && !token.isEmpty()) {
             String userEmail = tokenService.validateToken(token);
-            logger.debug("Email extraído do token: {}", userEmail);
+            logger.debug("Email extract from token: {}", userEmail);
 
             if (userEmail != null) {
                 User user = userService.findByEmail(userEmail);
                 if (user != null) {
-                    logger.debug("Usuário encontrado: {}", user.getEmail());
+                    logger.debug("Find user: {}", user.getEmail());
 
                     List<SimpleGrantedAuthority> authorities = List.of(
                             new SimpleGrantedAuthority("ROLE_" + user.getUserType().name())
@@ -54,15 +54,15 @@ public class SecurityFilter extends OncePerRequestFilter {
                     authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
 
                     SecurityContextHolder.getContext().setAuthentication(authentication);
-                    logger.debug("Autenticação configurada para o usuário: {}", user.getEmail());
+                    logger.debug("Authentication configured for the user: {}", user.getEmail());
                 } else {
-                    logger.warn("Usuário não encontrado para o email: {}", userEmail);
+                    logger.warn("User not found for email: {}", userEmail);
                 }
             } else {
-                logger.warn("Token inválido ou expirado");
+                logger.warn("Invalid or expired token");
             }
         } else {
-            logger.debug("Nenhum token encontrado no header Authorization");
+            logger.debug("No token found in Authorization header");
         }
 
         filterChain.doFilter(request, response);

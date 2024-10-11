@@ -44,6 +44,7 @@ public class CartController {
         return ResponseEntity.ok("Cart item created.");
     }
 
+    @Operation(summary = "Add product to cart", description = "Add product to existing cart")
     @PostMapping("/add/{cartId}/{productId}")
     public ResponseEntity<String> addProductToCart(@PathVariable Long cartId, @PathVariable Long productId) {
         var authenticatedUser = (UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();

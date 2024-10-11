@@ -27,14 +27,14 @@ public class ProductController {
 
     @PostMapping
     @Operation(summary = "Create a new product", description = "Create a new product and return the created product's data")
-    public ResponseEntity<ProductRequestDTO> createProduct(@RequestBody ProductRequestDTO product) {
+    public ResponseEntity<String> createProduct(@RequestBody ProductRequestDTO product) {
         var productToCreate = productService.create(product.from(randomCode()));
         var location = ServletUriComponentsBuilder
                 .fromCurrentRequest()
                 .path("/{id}")
                 .buildAndExpand(productToCreate.getId())
                 .toUri();
-        return ResponseEntity.created(location).body(product);
+        return ResponseEntity.created(location).body("Product " + product.name() + " created.");
     }
 
     @GetMapping("/products")
@@ -71,6 +71,7 @@ public class ProductController {
     }
 
     @GetMapping("/by-cart/{cartId}")
+    @Operation(summary = "Get product from a cart", description = "Retrieve a list of products from a cart")
     public ResponseEntity<List<Product>> getProductsByCart(@PathVariable Long cartId) {
         var products = productService.findProductsByCart(cartId);
         return ResponseEntity.status(HttpStatus.FOUND).body(products);

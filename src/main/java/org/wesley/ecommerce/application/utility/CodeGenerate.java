@@ -1,5 +1,6 @@
 package org.wesley.ecommerce.application.utility;
 
+import java.security.SecureRandom;
 import java.util.Random;
 
 public class CodeGenerate {
@@ -13,11 +14,11 @@ public class CodeGenerate {
     }
 
     private static String randomDigits() {
-        Random rand = new Random();
+        Random rand = new SecureRandom();
         StringBuilder numb = new StringBuilder();
 
-        for (int i = 0; i < 6; i++) {
-            numb.append(rand.nextInt(10));
+        for (int i = 0; i < 10; i++) {
+            numb.append(rand.nextInt(20));
         }
 
         return numb.toString();
@@ -30,7 +31,7 @@ public class CodeGenerate {
         Random rand = new Random();
         StringBuilder letters = new StringBuilder();
 
-        for (int i = 0; i < 4; i++) {
+        for (int i = 0; i < 5; i++) {
             int randomIndex = rand.nextInt(set.length());
             letters.append(set.charAt(randomIndex));
         }

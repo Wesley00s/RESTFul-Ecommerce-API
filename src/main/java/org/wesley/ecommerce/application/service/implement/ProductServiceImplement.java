@@ -24,6 +24,11 @@ public class ProductServiceImplement implements ProductService {
     }
 
     @Override
+    public void create(List<Product> products) {
+        productRepository.saveAll(products);
+    }
+
+    @Override
     public Product findById(Long id) {
 
         return productRepository.findById(id)
@@ -36,29 +41,43 @@ public class ProductServiceImplement implements ProductService {
     }
 
     @Override
-    public Product update(Long id, Product product) {
+    public boolean isStockAvailable(Long productId, Integer quantity) {
+        var product = productRepository.findById(productId)
+                .orElseThrow(() -> new RuntimeException("Product not found."));
+        return product.getStock() >= quantity;
+    }
 
+    @Override
+    public Product update(Long id, Product product) {
         Optional<Product> productOptional = productRepository.findById(id);
         if (productOptional.isPresent()) {
             Product productExist = productOptional.get();
-            productExist.setName(product.getName());
-            productExist.setDescription(product.getDescription());
-            productExist.setPrice(product.getPrice());
-            productExist.setStockQuantity(product.getStockQuantity());
-            productExist.setImageUrl(product.getImageUrl());
-            productExist.setCategory(product.getCategory());
+
+            if (product.getName() != null) {
+                productExist.setName(product.getName());
+            }
+            if (product.getPrice() != null) {
+                productExist.setPrice(product.getPrice());
+            }
+            if (product.getImageUrl() != null) {
+                productExist.setImageUrl(product.getImageUrl());
+            }
+            if (product.getCategory() != null) {
+                productExist.setCategory(product.getCategory());
+            }
+            if (product.getDescription() != null) {
+                productExist.setDescription(product.getDescription());
+            }
+            if (product.getStock() != null) {
+                productExist.setStock(product.getStock());
+            }
+
             return productRepository.save(productExist);
         } else {
             throw new NoSuchElementException("Product not found for update");
         }
     }
 
-    /**
-     * Deletes a product from the database.
-     *
-     * @param product the product to be deleted
-     * @throws NoSuchElementException if the product is not found
-     */
     @Override
     public void delete(Product product) {
 
@@ -70,8 +89,11 @@ public class ProductServiceImplement implements ProductService {
     }
 
     @Override
-    public void updateQuantityStock(Long productId, int quantity) {
-        productRepository.updateQuantityStock(productId, quantity);
+    public void updateStock(Long productId, int quantity) {
+        var product = productRepository.findById(productId)
+                .orElseThrow(() -> new RuntimeException("Product not found."));
+        product.setStock(quantity);
+        productRepository.save(product);
     }
 
     @Override

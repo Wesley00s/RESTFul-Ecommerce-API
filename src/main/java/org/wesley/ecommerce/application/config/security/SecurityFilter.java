@@ -5,6 +5,7 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -13,7 +14,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
-import org.wesley.ecommerce.application.domain.model.User;
+import org.wesley.ecommerce.application.domain.model.Users;
 import org.wesley.ecommerce.application.service.UserService;
 
 import java.io.IOException;
@@ -27,7 +28,7 @@ public class SecurityFilter extends OncePerRequestFilter {
     private final UserService userService;
 
     @Override
-    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
+    protected void doFilterInternal(@NotNull HttpServletRequest request, @NotNull HttpServletResponse response, @NotNull FilterChain filterChain)
             throws ServletException, IOException {
         String token = this.recoveryToken(request);
         logger.debug("Token retrieved: {}", token);
@@ -37,16 +38,16 @@ public class SecurityFilter extends OncePerRequestFilter {
             logger.debug("Email extract from token: {}", userEmail);
 
             if (userEmail != null) {
-                User user = userService.findByEmail(userEmail);
-                if (user != null) {
-                    logger.debug("Find user: {}", user.getEmail());
+                Users users = userService.findByEmail(userEmail);
+                if (users != null) {
+                    logger.debug("Find users: {}", users.getEmail());
 
                     List<SimpleGrantedAuthority> authorities = List.of(
-                            new SimpleGrantedAuthority("ROLE_" + user.getUserType().name())
+                            new SimpleGrantedAuthority(users.getUserType().name().toUpperCase())
                     );
 
                     UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
-                            user,
+                            users,
                             null,
                             authorities
                     );
@@ -54,9 +55,9 @@ public class SecurityFilter extends OncePerRequestFilter {
                     authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
 
                     SecurityContextHolder.getContext().setAuthentication(authentication);
-                    logger.debug("Authentication configured for the user: {}", user.getEmail());
+                    logger.debug("Authentication configured for the users: {}", users.getEmail());
                 } else {
-                    logger.warn("User not found for email: {}", userEmail);
+                    logger.warn("Users not found for email: {}", userEmail);
                 }
             } else {
                 logger.warn("Invalid or expired token");
@@ -73,6 +74,7 @@ public class SecurityFilter extends OncePerRequestFilter {
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
             return null;
         }
+
         return authHeader.substring(7);
     }
 }

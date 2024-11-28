@@ -1,7 +1,7 @@
 package org.wesley.ecommerce.application.domain.model;
 
 import jakarta.persistence.*;
-import lombok.*;
+import lombok.Data;
 
 import java.util.ArrayList;
 import java.util.List;

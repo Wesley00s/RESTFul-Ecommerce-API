@@ -1,10 +1,7 @@
 package org.wesley.ecommerce.application.domain.repository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Modifying;
-import org.springframework.data.jpa.repository.Query;
-import org.springframework.transaction.annotation.Transactional;
-import org.wesley.ecommerce.application.domain.model.Order;
+import org.wesley.ecommerce.application.domain.model.OrderShopping;
 
-public interface OrderRepository extends JpaRepository<Order, Long> {
+public interface OrderRepository extends JpaRepository<OrderShopping, Long> {
 }

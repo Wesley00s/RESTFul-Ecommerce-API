@@ -9,15 +9,19 @@ import java.util.List;
 public interface ProductService {
     Product create(Product product);
 
+    void create(List<Product> products);
+
     Product findById(Long id);
 
     List<Product> findAll();
+
+    boolean isStockAvailable(Long productId, Integer quantity);
 
     Product update(Long id, Product product);
 
     void delete(Product product);
 
-    void updateQuantityStock(Long productId, int quantity);
+    void updateStock(Long productId, int quantity);
 
     List<Product> findProductsByCart(Long cartId);
 }

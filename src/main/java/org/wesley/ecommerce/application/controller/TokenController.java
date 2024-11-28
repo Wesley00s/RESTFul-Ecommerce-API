@@ -16,6 +16,8 @@ import org.wesley.ecommerce.application.controller.dto.LoginRequest;
 import org.wesley.ecommerce.application.controller.dto.LoginResponse;
 import org.wesley.ecommerce.application.controller.dto.RegisterResponse;
 import org.wesley.ecommerce.application.controller.dto.UserDTO;
+import org.wesley.ecommerce.application.domain.model.Cart;
+import org.wesley.ecommerce.application.service.CartService;
 import org.wesley.ecommerce.application.service.UserService;
 
 @RestController("/ecommerce")
@@ -25,6 +27,7 @@ public class TokenController {
 
     private final PasswordEncoder passwordEncoder;
     private final UserService userService;
+    private final CartService cartService;
     private final TokenService tokenService;
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
 
@@ -49,12 +52,15 @@ public class TokenController {
         var userToCreate = user.from();
         userToCreate.setPassword(bCryptPasswordEncoder.encode(user.password()));
         var userCreated = userService.create(userToCreate);
+        var cart = new Cart();
+        cart.setUsers(userCreated);
+        cartService.create(cart);
 
         var location = ServletUriComponentsBuilder
                 .fromCurrentRequest()
                 .path("/{id}")
-                .buildAndExpand(userCreated.getUserId())
+                .buildAndExpand(userCreated.getId())
                 .toUri();
-        return ResponseEntity.created(location).body(new RegisterResponse("User successfully created!"));
+        return ResponseEntity.created(location).body(new RegisterResponse("Users successfully created!"));
     }
 }

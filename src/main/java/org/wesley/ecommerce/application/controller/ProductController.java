@@ -2,7 +2,7 @@ package org.wesley.ecommerce.application.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import lombok.RequiredArgsConstructor;
+import lombok.Data;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -20,7 +20,7 @@ import static org.wesley.ecommerce.application.utility.CodeGenerate.randomCode;
 @RestController
 @RequestMapping("/product")
 @Tag(name = "Product Controller", description = "RESTFul API for managing products.")
-@RequiredArgsConstructor
+@Data
 
 public class ProductController {
     final private ProductService productService;
@@ -37,7 +37,18 @@ public class ProductController {
         return ResponseEntity.created(location).body("Product " + product.name() + " created.");
     }
 
-    @GetMapping("/products")
+    @PostMapping("/list")
+    @Operation(summary = "Save an list of products", description = "Create an list of products")
+    public ResponseEntity<String> createProducts(@RequestBody List<ProductRequestDTO> products) {
+        products.forEach(product -> productService.create(product.from(randomCode())));
+        var location = ServletUriComponentsBuilder
+                .fromCurrentRequest()
+                .build()
+                .toUri();
+        return ResponseEntity.created(location).body("Products created successfully.");
+    }
+
+    @GetMapping
     @Operation(summary = "Get all products", description = "Retrieve a list of all registered products")
     public ResponseEntity<List<ProductResponseDTO>> getAllProducts() {
         var products = productService.findAll();
@@ -52,10 +63,18 @@ public class ProductController {
     @Operation(summary = "Get a product by ID", description = "Retrieve a specific product based on its ID")
     public ResponseEntity<ProductResponseDTO> getProductById(@PathVariable Long id) {
         var product = productService.findById(id);
-        return ResponseEntity.ok(new ProductResponseDTO(product.getCode(), product.getName(), product.getDescription(), product.getPrice(), product.getStockQuantity(), product.getImageUrl(), product.getCategory()));
+        return ResponseEntity.ok(new ProductResponseDTO(
+                product.getName(),
+                product.getImageUrl(),
+                product.getCode(),
+                product.getDescription(),
+                product.getStock(),
+                product.getCategory(),
+                product.getPrice()
+        ));
     }
 
-    @DeleteMapping("/delete/{id}")
+    @DeleteMapping("/{id}")
     @Operation(summary = "Remove product", description = "Remove product by ID")
     public ResponseEntity<ProductResponseDTO> deleteProduct(@PathVariable Long id) {
         var productToDelete = productService.findById(id);
@@ -63,14 +82,14 @@ public class ProductController {
         return ResponseEntity.noContent().build();
     }
 
-    @PutMapping("/update/{id}")
+    @PutMapping("/{id}")
     @Operation(summary = "Update a product", description = "Update the data of an existing user based on its ID")
     public ResponseEntity<ProductResponseDTO> updateProduct(@PathVariable Long id, @RequestBody ProductResponseDTO productResponseDTO) {
         var updatedProduct = productService.update(id, productResponseDTO.from(randomCode()));
         return ResponseEntity.ok(ProductResponseDTO.fromDTO(updatedProduct));
     }
 
-    @GetMapping("/by-cart/{cartId}")
+    @GetMapping("/cart/{cartId}")
     @Operation(summary = "Get product from a cart", description = "Retrieve a list of products from a cart")
     public ResponseEntity<List<Product>> getProductsByCart(@PathVariable Long cartId) {
         var products = productService.findProductsByCart(cartId);

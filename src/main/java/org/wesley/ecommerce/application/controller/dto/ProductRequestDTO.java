@@ -3,42 +3,56 @@ package org.wesley.ecommerce.application.controller.dto;
 import org.wesley.ecommerce.application.domain.enumeration.ProductCategory;
 import org.wesley.ecommerce.application.domain.model.Product;
 
-import java.math.BigDecimal;
-
 
 public record ProductRequestDTO(
         String name,
-        String description,
-        BigDecimal price,
-        Integer stockQuantity,
         String imageUrl,
-        ProductCategory category
+        String description,
+        Integer stock,
+        ProductCategory category,
+        Double price
 ) {
 
     public static ProductRequestDTO fromDTO(Product product) {
         return new ProductRequestDTO(
                 product.getName(),
-                product.getDescription(),
-                product.getPrice(),
-                product.getStockQuantity(),
                 product.getImageUrl(),
-                product.getCategory()
+                product.getDescription(),
+                product.getStock(),
+                product.getCategory(),
+                product.getPrice()
         );
     }
 
-    static Product getProduct(String code, String name, String description, BigDecimal price, Integer stockQuantity, String imageUrl, ProductCategory category) {
+    static Product getProduct(
+            String name,
+            String imageUrl,
+            String code,
+            String description,
+            Integer stock,
+            ProductCategory category,
+            Double price
+    ) {
         Product product = new Product();
-        product.setCode(code);
         product.setName(name);
-        product.setDescription(description);
-        product.setPrice(price);
-        product.setStockQuantity(stockQuantity);
         product.setImageUrl(imageUrl);
+        product.setCode(code);
+        product.setDescription(description);
+        product.setStock(stock);
         product.setCategory(category);
+        product.setPrice(price);
         return product;
     }
 
-    public Product from(String cod) {
-        return getProduct(cod, this.name, this.description, this.price, this.stockQuantity, this.imageUrl, this.category);
+    public Product from(String code) {
+        return getProduct(
+                this.name,
+                this.imageUrl,
+                code,
+                this.description,
+                this.stock,
+                this.category,
+                this.price
+        );
     }
 }

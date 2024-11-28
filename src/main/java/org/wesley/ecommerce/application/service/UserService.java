@@ -1,22 +1,22 @@
 package org.wesley.ecommerce.application.service;
 
 import org.springframework.stereotype.Service;
-import org.wesley.ecommerce.application.domain.model.User;
+import org.wesley.ecommerce.application.domain.model.Users;
 
 import java.util.List;
 import java.util.UUID;
 
 @Service
 public interface UserService {
-    User findById(UUID id);
+    Users findById(UUID id);
 
-    List<User> findAll();
+    List<Users> findAll();
 
-    User create(User user);
+    Users create(Users users);
 
-    User update(UUID id, User user);
+    Users update(UUID id, Users users);
 
-    void delete(User user);
+    void delete(Users users);
 
-    User findByEmail(String email);
+    Users findByEmail(String email);
 }

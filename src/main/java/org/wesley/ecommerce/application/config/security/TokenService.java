@@ -15,10 +15,10 @@ import java.util.Date;
 @Slf4j
 public class TokenService {
 
-    @Value("${jwt.private.key}")
+    @Value("${PRIVATE_KEY}")
     private String privateKey;
 
-    @Value("${jwt.issuer}")
+    @Value("${ISSUER}")
     private String issuer;
 
 

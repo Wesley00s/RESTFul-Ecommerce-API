@@ -3,7 +3,7 @@ package org.wesley.ecommerce.application.service.implement;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
-import org.wesley.ecommerce.application.domain.model.User;
+import org.wesley.ecommerce.application.domain.model.Users;
 import org.wesley.ecommerce.application.domain.repository.UserRepository;
 import org.wesley.ecommerce.application.service.UserService;
 
@@ -23,47 +23,47 @@ public class UserServiceImplement implements UserService {
     }
 
     @Override
-    public User findById(UUID id) {
+    public Users findById(UUID id) {
         return userRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("User not found with id " + id));
+                .orElseThrow(() -> new EntityNotFoundException("Users not found with id " + id));
     }
 
     @Override
-    public List<User> findAll() {
+    public List<Users> findAll() {
         return userRepository.findAll();
     }
 
     @Override
-    public User create(User user) {
-        return userRepository.save(user);
+    public Users create(Users users) {
+        return userRepository.save(users);
     }
 
     @Override
-    public User update(UUID id, User updatedUser) {
-        Optional<User> existingUserOptional = userRepository.findById(id);
+    public Users update(UUID id, Users updatedUsers) {
+        Optional<Users> existingUserOptional = userRepository.findById(id);
         if (existingUserOptional.isPresent()) {
-            User existingUser = existingUserOptional.get();
-            existingUser.setEmail(updatedUser.getEmail());
-            existingUser.setName(updatedUser.getName());
-            existingUser.setPassword(updatedUser.getPassword());
-            existingUser.setUserType(updatedUser.getUserType());
-            return userRepository.save(existingUser);
+            Users existingUsers = existingUserOptional.get();
+            existingUsers.setEmail(updatedUsers.getEmail());
+            existingUsers.setName(updatedUsers.getName());
+            existingUsers.setPassword(updatedUsers.getPassword());
+            existingUsers.setUserType(updatedUsers.getUserType());
+            return userRepository.save(existingUsers);
         } else {
-            throw new NoSuchElementException("User not found for update");
+            throw new NoSuchElementException("Users not found for update");
         }
     }
 
     @Override
-    public void delete(User user) {
-        if (userRepository.existsById(user.getUserId())) {
-            userRepository.deleteById(user.getUserId());
+    public void delete(Users users) {
+        if (userRepository.existsById(users.getId())) {
+            userRepository.deleteById(users.getId());
         } else {
-            throw new NoSuchElementException("User with id " + user.getUserId() + " not found for delete");
+            throw new NoSuchElementException("Users with id " + users.getId() + " not found for delete");
         }
     }
 
     @Override
-    public User findByEmail(String email) {
-        return userRepository.findByEmail(email).orElseThrow(() -> new UsernameNotFoundException("User not found with email: " + email));
+    public Users findByEmail(String email) {
+        return userRepository.findByEmail(email).orElseThrow(() -> new UsernameNotFoundException("Users not found with email: " + email));
     }
 }

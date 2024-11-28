@@ -1,14 +1,12 @@
 package org.wesley.ecommerce.application.service;
 
 import org.springframework.stereotype.Service;
-import org.wesley.ecommerce.application.domain.model.Order;
-
-import java.util.List;
+import org.wesley.ecommerce.application.domain.model.OrderShopping;
 
 
 @Service
 public interface OrderService {
-    Order create(Order order);
+    OrderShopping create(OrderShopping orderShopping);
 
-    Order findById(Long id);
+    OrderShopping findById(Long id);
 }

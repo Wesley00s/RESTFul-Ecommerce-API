@@ -3,10 +3,7 @@ package org.wesley.ecommerce.application.domain.model;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.Data;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.wesley.ecommerce.application.domain.enumeration.UserType;
@@ -16,15 +13,12 @@ import java.util.Collection;
 import java.util.List;
 import java.util.UUID;
 
-@AllArgsConstructor
-@NoArgsConstructor
-@Getter
-@Setter
-@Entity(name = "users")
-public class User implements UserDetails {
+@Data
+@Entity
+public class Users implements UserDetails {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
-    private UUID userId;
+    private UUID id;
     private String name;
     @Column(unique = true, nullable = false)
     @Email(message = "Email is required")
@@ -32,8 +26,8 @@ public class User implements UserDetails {
     private String password;
     private UserType userType;
     @JsonManagedReference
-    @OneToMany(mappedBy = "user", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
-    private List<Cart> carts;
+    @OneToOne(mappedBy = "users", cascade = CascadeType.ALL)
+    private Cart cart;
     @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     @JoinColumn(name = "address_id")
     private Address address;

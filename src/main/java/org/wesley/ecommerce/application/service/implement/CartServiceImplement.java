@@ -1,6 +1,5 @@
 package org.wesley.ecommerce.application.service.implement;
 
-import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 import org.wesley.ecommerce.application.domain.model.Cart;
 import org.wesley.ecommerce.application.domain.repository.CartRepository;
@@ -8,6 +7,7 @@ import org.wesley.ecommerce.application.service.CartService;
 
 import java.util.List;
 import java.util.NoSuchElementException;
+import java.util.Optional;
 import java.util.UUID;
 
 
@@ -21,10 +21,8 @@ public class CartServiceImplement implements CartService {
 
     @Override
     public Cart create(Cart cart) {
-
         return cartRepository.save(cart);
     }
-
 
     @Override
     public Cart findById(Long id) {
@@ -37,19 +35,31 @@ public class CartServiceImplement implements CartService {
     }
 
     @Override
-    public void addToCart(Long cartId, Long productId) {
-        cartRepository.addToCart(cartId, productId);
+    public Cart update(Long cartId, Cart cart) {
+        Optional<Cart> cartOptional = cartRepository.findById(cartId);
+        if (cartOptional.isPresent()) {
+            Cart cartExisting = cartOptional.get();
+
+            if (cart.getTotalPrice() != null) {
+                cartExisting.setTotalPrice(cart.getTotalPrice());
+            }
+            if (cart.getId() != null) {
+                cartExisting.setId(cart.getId());
+            }
+            if (cart.getItems() != null) {
+                cartExisting.setItems(cart.getItems());
+            }
+            if (cart.getUsers() != null) {
+                cartExisting.setUsers(cart.getUsers());
+            }
+            return cartRepository.save(cartExisting);
+        } else {
+            throw new NoSuchElementException("Cart not found for update");
+        }
     }
 
-
     @Override
-    public Cart findCartByUserId(UUID userId, Long cartId) {
-        return cartRepository.findCartByUserId(userId, cartId);
-    }
-
-    @Override
-    @Transactional
-    public void disableCart(Long cartId) {
-        cartRepository.disableCart(cartId);
+    public Cart findCartByUserId(UUID userId) {
+        return cartRepository.findCartByUserId(userId);
     }
 }

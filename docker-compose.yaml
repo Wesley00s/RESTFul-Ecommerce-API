@@ -1,0 +1,10 @@
+services:
+  app:
+    image: ecommerce-api-image:latest
+    build:
+      context: .
+    container_name: ecommerce-app
+    ports:
+      - "8080:8080"
+    env_file:
+      - .env

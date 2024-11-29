@@ -9,4 +9,6 @@ public interface OrderService {
     OrderShopping create(OrderShopping orderShopping);
 
     OrderShopping findById(Long id);
+
+    void update(Long orderId, OrderShopping orderShopping);
 }

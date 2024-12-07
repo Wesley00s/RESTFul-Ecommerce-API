@@ -6,5 +6,11 @@ public enum ProductCategory {
     TABLETS,
     TV,
     HOME_APPLIANCES,
-    ACCESSORY
+    SMARTWATCH,
+    GAMING_CONSOLE,
+    HEADPHONES,
+    CAMERA,
+    DRONES,
+    MONITOR,
+    PRINTER
 }

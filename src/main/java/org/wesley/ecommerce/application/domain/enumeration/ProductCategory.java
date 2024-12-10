@@ -8,6 +8,7 @@ public enum ProductCategory {
     HOME_APPLIANCES,
     SMARTWATCH,
     GAMING_CONSOLE,
+    ACCESSORY,
     HEADPHONES,
     CAMERA,
     DRONES,

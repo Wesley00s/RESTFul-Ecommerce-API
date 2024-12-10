@@ -17,6 +17,11 @@ public class CartItemServiceImplement implements CartItemService {
     }
 
     @Override
+    public CartItem findById(Long id) {
+        return cartItemRepository.findById(id).orElseThrow(NoSuchElementException::new);
+    }
+
+    @Override
     public CartItem update(Long cartItemId, CartItem cartItem) {
         Optional<CartItem> cartItemOptional = cartItemRepository.findById(cartItemId);
         if (cartItemOptional.isPresent()) {
@@ -54,12 +59,15 @@ public class CartItemServiceImplement implements CartItemService {
     }
 
     @Override
-    public void addToCartItem(Long cartId, Long productId, Integer quantity, Double price) {
-        cartItemRepository.addToCart(cartId, productId, quantity, price);
+    public void addItemToCart(Long cartId, Long productId, Integer quantity, Double price) {
+        cartItemRepository.addItemToCart(cartId, productId, quantity, price);
     }
 
     @Override
     public void updateTotalPrice(Double newTotalPrice, Long productId, Long cartId) {
+        if (newTotalPrice == null || newTotalPrice <= 0) {
+            throw new IllegalArgumentException("Total price must be greater than zero.");
+        }
         cartItemRepository.updateTotalPrice(newTotalPrice, productId, cartId);
     }
 }

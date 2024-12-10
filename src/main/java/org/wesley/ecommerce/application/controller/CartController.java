@@ -57,7 +57,7 @@ public class CartController {
 
             return ResponseEntity.ok("Product quantity updated in cart successfully.");
         } else {
-            cartItemService.addToCartItem(cart.getId(), productId, quantity, totalPrice);
+            cartItemService.addItemToCart(cart.getId(), productId, quantity, totalPrice);
 
             cart.setTotalPrice(cart.getTotalPrice() + totalPrice);
             cartService.update(cart.getId(), cart);
@@ -76,6 +76,11 @@ public class CartController {
         if (cart == null) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("User does not have an active cart.");
         }
+        var itemPresent = cart.getItems().stream().filter(it -> productId.equals(it.getProduct().getId())).findFirst();
+        if (itemPresent.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Product is not in the cart.");
+        }
+
         var product = productService.findById(productId);
         if (product == null) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Product not found.");
@@ -90,9 +95,7 @@ public class CartController {
 
         cartService.update(cart.getId(), cart);
 
-
         return ResponseEntity.ok("Product removed from cart successfully.");
-
     }
 
     @Operation(summary = "Remove one quantity products references from cart", description = "Remove one quantity product references from existing cart")

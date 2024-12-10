@@ -3,9 +3,12 @@ package org.wesley.ecommerce.application.domain.model;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.wesley.ecommerce.application.controller.dto.UserDTO;
 import org.wesley.ecommerce.application.domain.enumeration.UserType;
 
 import java.time.LocalDateTime;
@@ -14,6 +17,8 @@ import java.util.List;
 import java.util.UUID;
 
 @Data
+@AllArgsConstructor
+@NoArgsConstructor
 @Entity
 public class Users implements UserDetails {
     @Id

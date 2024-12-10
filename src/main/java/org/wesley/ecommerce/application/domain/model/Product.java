@@ -1,10 +1,14 @@
 package org.wesley.ecommerce.application.domain.model;
 
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import org.wesley.ecommerce.application.domain.enumeration.ProductCategory;
 
 @Data
+@AllArgsConstructor
+@NoArgsConstructor
 @Entity
 public class Product {
     @Id

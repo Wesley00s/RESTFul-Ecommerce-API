@@ -24,7 +24,7 @@ public record ProductRequestDTO(
         );
     }
 
-    static Product getProduct(
+    public static Product getProduct(
             String name,
             String imageUrl,
             String code,

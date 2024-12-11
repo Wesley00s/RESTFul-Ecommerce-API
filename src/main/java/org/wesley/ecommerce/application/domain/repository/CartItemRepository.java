@@ -11,7 +11,7 @@ public interface CartItemRepository extends JpaRepository<CartItem, Long> {
     @Modifying
     @Transactional
     @Query(value = "INSERT INTO cart_item (cart_id, product_id, quantity, price) VALUES (?1, ?2, ?3, ?4)", nativeQuery = true)
-    void addToCart(Long cartId, Long productId, Integer quantity, Double price);
+    void addItemToCart(Long cartId, Long productId, Integer quantity, Double price);
 
     @Modifying
     @Transactional

@@ -22,7 +22,6 @@ import org.wesley.ecommerce.application.service.UserService;
 
 import java.time.LocalDateTime;
 import java.util.Collections;
-import java.util.Random;
 import java.util.UUID;
 
 @SpringBootTest

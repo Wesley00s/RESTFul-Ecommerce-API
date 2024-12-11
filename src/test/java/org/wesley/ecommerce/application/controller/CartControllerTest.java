@@ -15,7 +15,6 @@ import org.springframework.web.context.WebApplicationContext;
 import org.wesley.ecommerce.application.domain.model.Cart;
 import org.wesley.ecommerce.application.domain.model.Product;
 import org.wesley.ecommerce.application.domain.model.Users;
-import org.wesley.ecommerce.application.service.CartItemService;
 import org.wesley.ecommerce.application.service.ProductService;
 import org.wesley.ecommerce.application.service.implement.AuthenticationService;
 
@@ -43,9 +42,6 @@ public class CartControllerTest {
 
     @MockBean
     private ProductService productService;
-
-    @MockBean
-    CartItemService cartService;
 
     @MockBean
     private AuthenticationService authenticationService;

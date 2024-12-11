@@ -8,7 +8,6 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.wesley.ecommerce.application.controller.dto.UserDTO;
 import org.wesley.ecommerce.application.domain.enumeration.UserType;
 
 import java.time.LocalDateTime;

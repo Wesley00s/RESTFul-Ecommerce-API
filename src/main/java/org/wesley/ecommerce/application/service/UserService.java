@@ -1,6 +1,7 @@
 package org.wesley.ecommerce.application.service;
 
 import org.springframework.stereotype.Service;
+import org.wesley.ecommerce.application.controller.dto.UserDTO;
 import org.wesley.ecommerce.application.domain.model.Users;
 
 import java.util.List;
@@ -14,7 +15,7 @@ public interface UserService {
 
     Users create(Users users);
 
-    Users update(UUID id, Users users);
+    Users update(UUID id, UserDTO userDTO);
 
     void delete(Users users);
 

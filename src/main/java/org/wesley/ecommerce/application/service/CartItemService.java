@@ -6,13 +6,15 @@ import org.wesley.ecommerce.application.domain.model.CartItem;
 @Service
 public interface CartItemService {
 
+    CartItem findById(Long id);
+
     CartItem update(Long cartItemId, CartItem cartItem);
 
     void removeAllFromCartItem(Long productId, Long cartId);
 
     void removeOnlyFromCartItem(Long productId, Long cartId, int quantity);
 
-    void addToCartItem(Long cartId, Long productId, Integer quantity, Double price);
+    void addItemToCart(Long cartId, Long productId, Integer quantity, Double price);
 
     void updateTotalPrice(Double newTotalPrice, Long productId, Long cartId);
 }

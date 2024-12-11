@@ -64,6 +64,9 @@ public class UserController {
     @Operation(summary = "Remove user", description = "Remove user by ID")
     public ResponseEntity<Void> deleteUser(@PathVariable UUID id) {
         var userToDelete = userService.findById(id);
+        if (userToDelete == null) {
+            return ResponseEntity.notFound().build();
+        }
         userService.delete(userToDelete);
         return ResponseEntity.noContent().build();
     }
@@ -71,14 +74,21 @@ public class UserController {
     @Operation(summary = "Update a user", description = "Update the data of an existing user based on its ID")
     @PutMapping("/{id}")
     public ResponseEntity<UserDTO> updateUser(@PathVariable UUID id, @RequestBody UserDTO userDTO) {
-        var updatedUser = userService.update(id, userDTO.from());
+        var user = userService.findById(id);
+        if (user == null) {
+            return ResponseEntity.notFound().build();
+        }
+        var updatedUser = userService.update(id, userDTO);
         return ResponseEntity.ok(UserDTO.fromUser(updatedUser));
     }
 
     @Operation(summary = "Find user by email", description = "Retrieve a specific user based on its email")
-    @GetMapping("/{email}")
+    @GetMapping("/mail/{email}")
     public ResponseEntity<UserDTO> findUserByEmail(@PathVariable String email) {
         var user = userService.findByEmail(email);
+        if (user == null) {
+            return ResponseEntity.notFound().build();
+        }
         return ResponseEntity.ok(UserDTO.fromUser(user));
     }
 }

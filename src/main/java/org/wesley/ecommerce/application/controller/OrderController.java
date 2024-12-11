@@ -20,6 +20,7 @@ import org.wesley.ecommerce.application.service.ProductService;
 import org.wesley.ecommerce.application.service.UserService;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 
 @RestController
 @RequestMapping("/order")
@@ -103,7 +104,10 @@ class OrderController {
             order.setStatus(OrderStatus.CANCELLED);
         }
         cart.setTotalPrice(0.0);
+
+        cart.setItems(new ArrayList<>(cart.getItems()));
         cart.getItems().clear();
+
         cartService.update(cart.getId(), cart);
         orderService.update(order.getId(), order);
 

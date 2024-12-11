@@ -3,13 +3,13 @@ package org.wesley.ecommerce.application.service.implement;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
+import org.wesley.ecommerce.application.controller.dto.UserDTO;
 import org.wesley.ecommerce.application.domain.model.Users;
 import org.wesley.ecommerce.application.domain.repository.UserRepository;
 import org.wesley.ecommerce.application.service.UserService;
 
 import java.util.List;
 import java.util.NoSuchElementException;
-import java.util.Optional;
 import java.util.UUID;
 
 
@@ -39,18 +39,20 @@ public class UserServiceImplement implements UserService {
     }
 
     @Override
-    public Users update(UUID id, Users updatedUsers) {
-        Optional<Users> existingUserOptional = userRepository.findById(id);
-        if (existingUserOptional.isPresent()) {
-            Users existingUsers = existingUserOptional.get();
-            existingUsers.setEmail(updatedUsers.getEmail());
-            existingUsers.setName(updatedUsers.getName());
-            existingUsers.setPassword(updatedUsers.getPassword());
-            existingUsers.setUserType(updatedUsers.getUserType());
-            return userRepository.save(existingUsers);
-        } else {
-            throw new NoSuchElementException("Users not found for update");
-        }
+    public Users update(UUID id, UserDTO userDTO) {
+        Users existingUser = userRepository.findById(id)
+                .orElseThrow(() -> new NoSuchElementException("User not found"));
+
+        if (userDTO.name() != null) existingUser.setName(userDTO.name());
+        if (userDTO.email() != null) existingUser.setEmail(userDTO.email());
+        if (userDTO.password() != null) existingUser.setPassword(userDTO.password());
+        if (userDTO.userType() != null) existingUser.setUserType(userDTO.userType());
+        if (userDTO.street() != null) existingUser.getAddress().setStreet(userDTO.street());
+        if (userDTO.city() != null) existingUser.getAddress().setCity(userDTO.city());
+        if (userDTO.state() != null) existingUser.getAddress().setState(userDTO.state());
+        if (userDTO.zip() != null) existingUser.getAddress().setZip(userDTO.zip());
+
+        return userRepository.save(existingUser);
     }
 
     @Override

@@ -29,18 +29,18 @@ public class OrderServiceImplement implements OrderService {
     @Override
     public void update(Long orderId, OrderShopping orderShopping) {
         Optional<OrderShopping> order = orderRepository.findById(orderId);
-        if(order.isPresent()) {
+        if (order.isPresent()) {
             var existingOrder = order.get();
-            if(existingOrder.getStatus() != null) {
+            if (existingOrder.getStatus() != null) {
                 existingOrder.setStatus(orderShopping.getStatus());
             }
-            if(orderShopping.getId() != null) {
+            if (orderShopping.getId() != null) {
                 existingOrder.setId(orderShopping.getId());
             }
-            if(orderShopping.getCart() != null) {
+            if (orderShopping.getCart() != null) {
                 existingOrder.setCart(orderShopping.getCart());
             }
-            if(orderShopping.getCreatedAt() != null) {
+            if (orderShopping.getCreatedAt() != null) {
                 existingOrder.setCreatedAt(orderShopping.getCreatedAt());
             }
         } else {

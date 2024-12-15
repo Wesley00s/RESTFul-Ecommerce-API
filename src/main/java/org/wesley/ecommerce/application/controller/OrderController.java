@@ -79,7 +79,7 @@ class OrderController {
         }
 
         var cart = order.getCart();
-        if(cart.getItems().isEmpty()) {
+        if (cart.getItems().isEmpty()) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Cart is empty. Cannot confirm an order.");
         }
 

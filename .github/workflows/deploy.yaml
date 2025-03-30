@@ -2,14 +2,24 @@ name: Deployment
 
 on:
   workflow_run:
-    workflows: ['Application Unit Tests']
-    branches: [main]
-
+    push:
+      branches:
+        - 'main'
 
 jobs:
   run_pull:
     name: run pull
     runs-on: ubuntu-latest
+
+    env:
+      DATABASE_HOST: ${{ secrets.DATABASE_HOST }}
+      DATABASE_NAME: ${{ secrets.DATABASE_NAME }}
+      DATABASE_PASSWORD: ${{ secrets.DATABASE_PASSWORD }}
+      DATABASE_PORT: ${{ secrets.DATABASE_PORT }}
+      DATABASE_USER: ${{ secrets.DATABASE_USER }}
+      ISSUER: ${{ secrets.ISSUER }}
+      APP_PRIVATE_KEY: ${{ secrets.APP_PRIVATE_KEY }}
+      APP_PUBLIC_KEY: ${{ secrets.APP_PUBLIC_KEY }}
 
     steps:
       - name: Checkout

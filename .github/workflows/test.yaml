@@ -31,14 +31,8 @@ jobs:
           distribution: 'temurin'
           java-version: '21'
 
-      - name: Configure .env
-        run: |
-          echo "DATABASE_HOST=${{ secrets.DATABASE_HOST }}" > .env
-          echo "DATABASE_NAME=${{ secrets.DATABASE_NAME }}" >> .env
-          echo "DATABASE_PASSWORD=${{ secrets.DATABASE_PASSWORD }}" >> .env
-          echo "DATABASE_PORT=${{ secrets.DATABASE_PORT }}" >> .env
-          echo "DATABASE_USER=${{ secrets.DATABASE_USER }}" >> .env
-          echo "ISSUER=${{ secrets.ISSUER }}" >> .env
+      - name: Print .env
+        run: echo $DATABASE_HOST
 
       - name: Create RSA Keys
         run: |

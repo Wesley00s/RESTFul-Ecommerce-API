@@ -1,0 +1,26 @@
+name: Application Unit Tests
+
+on:
+  push:
+    branches:
+      - 'main'
+  pull_request:
+    branches:
+      - 'main'
+
+jobs:
+  tests:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'eclipse-temurin'
+          java-version: '21.0.4_7-jdk'
+
+      - name: Run Tests
+        run: ./gradlew :test

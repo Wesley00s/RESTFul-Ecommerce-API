@@ -19,9 +19,7 @@ jobs:
       DATABASE_PORT: ${{ secrets.DATABASE_PORT }}
       DATABASE_USER: ${{ secrets.DATABASE_USER }}
       ISSUER: ${{ secrets.ISSUER }}
-
-
-
+      SPRING_PROFILES_ACTIVE: test
 
     steps:
       - name: Checkout

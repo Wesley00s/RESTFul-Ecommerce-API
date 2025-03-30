@@ -19,8 +19,8 @@ jobs:
       - name: Setup Java
         uses: actions/setup-java@v4
         with:
-          distribution: 'eclipse-temurin'
-          java-version: '21.0.4_7-jdk'
+          distribution: 'temurin'
+          java-version: '21'
 
       - name: Run Tests
         run: ./gradlew :test

@@ -24,12 +24,12 @@ jobs:
 
       - name: Configure .env
         run: |
-          echo "DATABASE_HOST=${{ secrets.DATABASE_HOST }}" > .env
-          echo "DATABASE_NAME=${{ secrets.DATABASE_NAME }}" >> .env
-          echo "DATABASE_PASSWORD=${{ secrets.DATABASE_PASSWORD }}" >> .env
-          echo "DATABASE_PORT=${{ secrets.DATABASE_PORT }}" >> .env
-          echo "DATABASE_USER=${{ secrets.DATABASE_USER }}" >> .env
-          echo "ISSUER=${{ secrets.ISSUER }}" >> .env
+          echo "DATABASE_HOST=${{ secrets.DATABASE_HOST }}" > src/main/resources/.env
+          echo "DATABASE_NAME=${{ secrets.DATABASE_NAME }}" >> src/main/resources/.env
+          echo "DATABASE_PASSWORD=${{ secrets.DATABASE_PASSWORD }}" >> src/main/resources/.env
+          echo "DATABASE_PORT=${{ secrets.DATABASE_PORT }}" >> src/main/resources/.env
+          echo "DATABASE_USER=${{ secrets.DATABASE_USER }}" >> src/main/resources/.env
+          echo "ISSUER=${{ secrets.ISSUER }}" >> src/main/resources/.env
 
       - name: Create RSA Keys
         run: |

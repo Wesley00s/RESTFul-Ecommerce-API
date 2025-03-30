@@ -37,6 +37,9 @@ jobs:
           chmod 600 src/main/resources/app.key
           echo "${{ secrets.APP_PUBLIC_KEY }}" > src/main/resources/app.pub
 
+      - name: Print Environment Variables
+        run: env
+
       - name: Clean and Build
         env:
           DATABASE_HOST: ${{ secrets.DATABASE_HOST }}

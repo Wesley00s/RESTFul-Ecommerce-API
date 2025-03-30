@@ -38,7 +38,21 @@ jobs:
           echo "${{ secrets.APP_PUBLIC_KEY }}" > src/main/resources/app.pub
 
       - name: Clean and Build
+        env:
+          DATABASE_HOST: ${{ secrets.DATABASE_HOST }}
+          DATABASE_NAME: ${{ secrets.DATABASE_NAME }}
+          DATABASE_PASSWORD: ${{ secrets.DATABASE_PASSWORD }}
+          DATABASE_PORT: ${{ secrets.DATABASE_PORT }}
+          DATABASE_USER: ${{ secrets.DATABASE_USER }}
+          ISSUER: ${{ secrets.ISSUER }}
         run: ./gradlew clean build
 
       - name: Run Tests
+        env:
+          DATABASE_HOST: ${{ secrets.DATABASE_HOST }}
+          DATABASE_NAME: ${{ secrets.DATABASE_NAME }}
+          DATABASE_PASSWORD: ${{ secrets.DATABASE_PASSWORD }}
+          DATABASE_PORT: ${{ secrets.DATABASE_PORT }}
+          DATABASE_USER: ${{ secrets.DATABASE_USER }}
+          ISSUER: ${{ secrets.ISSUER }}
         run: ./gradlew :test

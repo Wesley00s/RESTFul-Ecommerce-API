@@ -1,0 +1,42 @@
+services:
+  app:
+    image: ecommerce-api-image:latest
+    networks:
+      - app_network
+    build:
+      context: .
+    container_name: ecommerce-app
+    restart: always
+    ports:
+      - "8080:8080"
+    depends_on:
+      db:
+        condition: service_healthy
+    env_file:
+      - .env
+
+  db:
+    image: postgres
+    container_name: ecommerce-db
+    networks:
+      - app_network
+    restart: always
+    shm_size: 128mb
+    ports:
+      - "5432:5432"
+    volumes:
+      - type: tmpfs
+        target: /dev/shm
+        tmpfs:
+          size: 134217728
+    env_file:
+      - .env
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+networks:
+    app_network:
+        driver: bridge

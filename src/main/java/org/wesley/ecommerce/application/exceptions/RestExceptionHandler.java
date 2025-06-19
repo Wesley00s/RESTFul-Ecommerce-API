@@ -17,7 +17,6 @@ import java.util.NoSuchElementException;
 @RestControllerAdvice
 public class RestExceptionHandler {
 
-    // Handles validation errors
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ExceptionDetails> handleValidException(MethodArgumentNotValidException exception) {
         Map<String, String> errors = new HashMap<>();
@@ -45,7 +44,6 @@ public class RestExceptionHandler {
         );
     }
 
-    // Handles DataAccessException
     @ExceptionHandler(DataAccessException.class)
     public ResponseEntity<ExceptionDetails> handleDataAccessException(DataAccessException exception) {
         Map<String, String> errors = new HashMap<>();
@@ -63,7 +61,6 @@ public class RestExceptionHandler {
         );
     }
 
-    // Handles NoSuchElementException
     @ExceptionHandler(NoSuchElementException.class)
     public ResponseEntity<ExceptionDetails> handleNoSuchElementException(NoSuchElementException exception) {
         Map<String, String> errors = new HashMap<>();
@@ -81,7 +78,6 @@ public class RestExceptionHandler {
         );
     }
 
-    // Handles EntityNotFoundException
     @ExceptionHandler(EntityNotFoundException.class)
     public ResponseEntity<ExceptionDetails> handleEntityNotFoundException(EntityNotFoundException exception) {
         Map<String, String> errors = new HashMap<>();

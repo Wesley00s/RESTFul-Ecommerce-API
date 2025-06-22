@@ -6,6 +6,8 @@ import lombok.Data;
 import org.wesley.ecommerce.application.domain.enumeration.OrderStatus;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 
 @Data
@@ -15,11 +17,14 @@ public class OrderShopping {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     @ManyToOne
-    @JoinColumn(name = "cart_id")
-    private Cart cart;
+    @JoinColumn(name = "user_id")
+    private Users user;
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime createdAt;
     private OrderStatus status;
+
+    @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<OrderItem> items = new ArrayList<>();
 
     @PrePersist
     protected void onCreate() {

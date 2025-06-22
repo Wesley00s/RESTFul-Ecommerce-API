@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.wesley.ecommerce.application.domain.enumeration.ItemStatus;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -18,8 +19,16 @@ public class Cart {
     private Long id;
     @OneToOne
     @JoinColumn(name = "user_id")
-    private Users users;
+    private Users user;
     @OneToMany(mappedBy = "cart", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<CartItem> items = new ArrayList<>();
     private Double totalPrice = 0.0;
+
+
+    public void recalculateTotal() {
+        this.totalPrice = items.stream()
+                .filter(item -> item.getStatus() == ItemStatus.PENDING)
+                .mapToDouble(item -> item.getPrice() * item.getQuantity())
+                .sum();
+    }
 }

@@ -30,7 +30,7 @@ public class Users implements UserDetails {
     private String password;
     private UserType userType;
     @JsonManagedReference
-    @OneToOne(mappedBy = "users", cascade = CascadeType.ALL)
+    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL)
     private Cart cart;
     @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     @JoinColumn(name = "address_id")

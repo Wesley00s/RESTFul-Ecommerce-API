@@ -7,6 +7,7 @@ import static org.wesley.ecommerce.application.controller.dto.ProductRequestDTO.
 
 
 public record ProductResponseDTO(
+        Long id,
         String name,
         String imageUrl,
         String code,
@@ -18,6 +19,7 @@ public record ProductResponseDTO(
 
     public static ProductResponseDTO fromDTO(Product product) {
         return new ProductResponseDTO(
+                product.getId(),
                 product.getName(),
                 product.getImageUrl(),
                 product.getCode(),

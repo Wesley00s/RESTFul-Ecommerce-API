@@ -6,6 +6,7 @@ import lombok.Data;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.wesley.ecommerce.application.controller.dto.UserDTO;
+import org.wesley.ecommerce.application.controller.dto.UserResponseDTO;
 import org.wesley.ecommerce.application.service.CartService;
 import org.wesley.ecommerce.application.service.UserService;
 
@@ -23,10 +24,11 @@ public class UserController {
 
     @GetMapping("/{id}")
     @Operation(summary = "Get a user by ID", description = "Retrieve a specific user based on its ID")
-    public ResponseEntity<UserDTO> getUser(@PathVariable UUID id) {
+    public ResponseEntity<UserResponseDTO> getUser(@PathVariable UUID id) {
         var user = userService.findById(id);
 
-        var userDTO = new UserDTO(
+        var userDTO = new UserResponseDTO(
+                user.getId(),
                 user.getName(),
                 user.getEmail(),
                 user.getPassword(),
@@ -43,10 +45,11 @@ public class UserController {
 
     @GetMapping
     @Operation(summary = "Get all users", description = "Retrieve a list of all registered users")
-    public ResponseEntity<List<UserDTO>> getUsers() {
+    public ResponseEntity<List<UserResponseDTO>> getUsers() {
         var users = userService.findAll();
         var usersDTO = users.stream()
-                .map(user -> new UserDTO(
+                .map(user -> new UserResponseDTO(
+                        user.getId(),
                         user.getName(),
                         user.getEmail(),
                         user.getPassword(),
@@ -73,23 +76,23 @@ public class UserController {
 
     @Operation(summary = "Update a user", description = "Update the data of an existing user based on its ID")
     @PutMapping("/{id}")
-    public ResponseEntity<UserDTO> updateUser(@PathVariable UUID id, @RequestBody UserDTO userDTO) {
+    public ResponseEntity<UserResponseDTO> updateUser(@PathVariable UUID id, @RequestBody UserDTO userDTO) {
         var user = userService.findById(id);
         if (user == null) {
             return ResponseEntity.notFound().build();
         }
         var updatedUser = userService.update(id, userDTO);
-        return ResponseEntity.ok(UserDTO.fromUser(updatedUser));
+        return ResponseEntity.ok(UserResponseDTO.fromUser(updatedUser));
     }
 
     @Operation(summary = "Find user by email", description = "Retrieve a specific user based on its email")
     @GetMapping("/mail/{email}")
-    public ResponseEntity<UserDTO> findUserByEmail(@PathVariable String email) {
+    public ResponseEntity<UserResponseDTO> findUserByEmail(@PathVariable String email) {
         var user = userService.findByEmail(email);
         if (user == null) {
             return ResponseEntity.notFound().build();
         }
-        return ResponseEntity.ok(UserDTO.fromUser(user));
+        return ResponseEntity.ok(UserResponseDTO.fromUser(user));
     }
 }
 

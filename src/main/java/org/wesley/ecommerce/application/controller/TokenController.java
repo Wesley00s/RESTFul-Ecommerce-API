@@ -53,7 +53,7 @@ public class TokenController {
         userToCreate.setPassword(bCryptPasswordEncoder.encode(user.password()));
         var userCreated = userService.create(userToCreate);
         var cart = new Cart();
-        cart.setUsers(userCreated);
+        cart.setUser(userCreated);
         cartService.create(cart);
 
         var location = ServletUriComponentsBuilder

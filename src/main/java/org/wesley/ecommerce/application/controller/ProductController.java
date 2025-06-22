@@ -27,25 +27,26 @@ public class ProductController {
 
     @PostMapping
     @Operation(summary = "Create a new product", description = "Create a new product and return the created product's data")
-    public ResponseEntity<String> createProduct(@RequestBody ProductRequestDTO product) {
+    public ResponseEntity<Product> createProduct(@RequestBody ProductRequestDTO product) {
         var productToCreate = productService.create(product.from(randomCode()));
         var location = ServletUriComponentsBuilder
                 .fromCurrentRequest()
                 .path("/{id}")
                 .buildAndExpand(productToCreate.getId())
                 .toUri();
-        return ResponseEntity.created(location).body("Product " + product.name() + " created.");
+        return ResponseEntity.created(location).body(productToCreate);
     }
 
     @PostMapping("/list")
     @Operation(summary = "Save an list of products", description = "Create an list of products")
-    public ResponseEntity<String> createProducts(@RequestBody List<ProductRequestDTO> products) {
-        products.forEach(product -> productService.create(product.from(randomCode())));
+    public ResponseEntity<ArrayList<Product>> createProducts(@RequestBody List<ProductRequestDTO> products) {
+        var prods = new ArrayList<Product>();
+        products.forEach(product -> prods.add(productService.create(product.from(randomCode()))));
         var location = ServletUriComponentsBuilder
                 .fromCurrentRequest()
                 .build()
                 .toUri();
-        return ResponseEntity.created(location).body("Products created successfully.");
+        return ResponseEntity.created(location).body(prods);
     }
 
     @GetMapping
@@ -63,7 +64,9 @@ public class ProductController {
     @Operation(summary = "Get a product by ID", description = "Retrieve a specific product based on its ID")
     public ResponseEntity<ProductResponseDTO> getProductById(@PathVariable Long id) {
         var product = productService.findById(id);
-        return ResponseEntity.ok(new ProductResponseDTO(
+        return ResponseEntity.ok(
+                new ProductResponseDTO(
+                product.getId(),
                 product.getName(),
                 product.getImageUrl(),
                 product.getCode(),

@@ -8,7 +8,10 @@ import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.context.request.WebRequest;
 
+import javax.naming.AuthenticationException;
+import java.nio.file.AccessDeniedException;
 import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
@@ -90,6 +93,81 @@ public class RestExceptionHandler {
                         LocalDateTime.now(),
                         HttpStatus.NOT_FOUND.value(),
                         exception.getClass().toString(),
+                        errors
+                )
+        );
+    }
+
+    @ExceptionHandler(InsufficientStockException.class)
+    public ResponseEntity<ExceptionDetails> handleInsufficientStockException(InsufficientStockException exception) {
+        Map<String, String> errors = new HashMap<>();
+        String cause = exception.getCause() != null ? exception.getCause().toString() : "No cause available";
+        errors.put(cause, exception.getMessage());
+
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
+                new ExceptionDetails(
+                        "Insufficient stock! Consult the documentation.",
+                        LocalDateTime.now(),
+                        HttpStatus.BAD_REQUEST.value(),
+                        exception.getClass().toString(),
+                        errors
+                )
+        );
+    }
+
+    @ExceptionHandler(CartEmptyException.class)
+    public ResponseEntity<ExceptionDetails> handleCartEmptyException(CartEmptyException exception) {
+        Map<String, String> errors = new HashMap<>();
+        String cause = exception.getCause() != null ? exception.getCause().toString() : "No cause available";
+        errors.put(cause, exception.getMessage());
+
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
+                new ExceptionDetails(
+                        "Cart is empty! Consult the documentation.",
+                        LocalDateTime.now(),
+                        HttpStatus.BAD_REQUEST.value(),
+                        exception.getClass().toString(),
+                        errors
+                )
+        );
+    }
+
+    @ExceptionHandler(BusinessException.class)
+    public ResponseEntity<ExceptionDetails> handleBusinessException(BusinessException exception) {
+        Map<String, String> errors = new HashMap<>();
+        String cause = exception.getCause() != null ? exception.getCause().toString() : "No cause available";
+        errors.put(cause, exception.getMessage());
+
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
+                new ExceptionDetails(
+                        "Business rule violation! Consult the documentation.",
+                        LocalDateTime.now(),
+                        HttpStatus.BAD_REQUEST.value(),
+                        exception.getClass().toString(),
+                        errors
+                )
+        );
+    }
+
+    @ExceptionHandler(Exception.class)
+    public ResponseEntity<ExceptionDetails> handleAllExceptions(Exception ex, WebRequest request) {
+        HttpStatus status = HttpStatus.INTERNAL_SERVER_ERROR;
+        String title = "Internal Server Error";
+
+        if (ex instanceof AuthenticationException || ex instanceof AccessDeniedException) {
+            return null;
+        }
+
+        Map<String, String> errors = new HashMap<>();
+        String cause = ex.getCause() != null ? ex.getCause().toString() : "No cause available";
+        errors.put(cause, ex.getMessage());
+
+        return ResponseEntity.status(status).body(
+                new ExceptionDetails(
+                        title,
+                        LocalDateTime.now(),
+                        status.value(),
+                        ex.getClass().getName(),
                         errors
                 )
         );

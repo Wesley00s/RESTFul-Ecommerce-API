@@ -1,6 +1,5 @@
 package org.wesley.ecommerce.application.exceptions;
 
-import java.util.UUID;
 
 public class InsufficientStockException extends RuntimeException {
     public InsufficientStockException(String productName, Long productId) {

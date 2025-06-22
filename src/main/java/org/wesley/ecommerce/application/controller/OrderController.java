@@ -4,23 +4,19 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.transaction.Transactional;
 import lombok.Data;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
-import org.wesley.ecommerce.application.domain.enumeration.OrderStatus;
-import org.wesley.ecommerce.application.domain.model.OrderShopping;
+import org.springframework.web.bind.annotation.*;
+import org.wesley.ecommerce.application.controller.dto.OrderHistoryDTO;
+import org.wesley.ecommerce.application.controller.dto.OrderShoppingDTO;
+import org.wesley.ecommerce.application.domain.model.*;
 import org.wesley.ecommerce.application.service.CartService;
 import org.wesley.ecommerce.application.service.OrderService;
 import org.wesley.ecommerce.application.service.ProductService;
 import org.wesley.ecommerce.application.service.UserService;
+import org.wesley.ecommerce.application.service.implement.AuthenticationService;
 
-import java.time.LocalDateTime;
-import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/order")
@@ -31,86 +27,42 @@ class OrderController {
     private final CartService cartService;
     private final ProductService productService;
     private final UserService userService;
+    private final AuthenticationService authenticationService;
 
     @PostMapping
     @Transactional
     @Operation(summary = "Create a new order", description = "Create a new order and send it for admin confirmation.")
-    public ResponseEntity<String> createOrder() {
-        var authenticatedUser = (UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        var authenticatedUserId = userService.findByEmail(authenticatedUser.getUsername()).getId();
-
-        var cart = cartService.findCartByUserId(authenticatedUserId);
-
-        if (cart == null) {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("You do not have access to this cart.");
-        }
-
-        if (cart.getItems().isEmpty()) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Cart is empty. Cannot create an order.");
-        }
-
-        for (var item : cart.getItems()) {
-            var product = productService.findById(item.getProduct().getId());
-            if (product == null) {
-                return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Product not found: " + item.getProduct().getId());
-            }
-
-            if (product.getStock() < item.getQuantity()) {
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                        .body("Insufficient stock for product: " + product.getName());
-            }
-        }
-
-        var order = new OrderShopping();
-        order.setCart(cart);
-        order.setCreatedAt(LocalDateTime.now());
-        orderService.create(order);
-
-        return ResponseEntity.ok("Order created successfully and sent for admin confirmation.");
+    public ResponseEntity<OrderShoppingDTO> createOrder() {
+        Users user = authenticationService.getAuthenticatedUser();
+        OrderShopping order = orderService.createOrderFromCart(user.getId());
+        return ResponseEntity.ok(OrderShoppingDTO.fromDTO(order));
     }
 
     @PostMapping("/admin/confirm")
     @Transactional
     @Operation(summary = "Confirm or reject an order", description = "Allows an admin to confirm or reject a placed order.")
-    public ResponseEntity<String> confirmOrder(@RequestParam("order") Long orderId, @RequestParam boolean confirm) {
-        var order = orderService.findById(orderId);
-        if (order == null) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Order not found.");
-        }
+    public ResponseEntity<OrderShoppingDTO> confirmOrder(@RequestParam("order") Long orderId, @RequestParam boolean confirm) {
+        OrderShopping order = orderService.confirmOrder(orderId, confirm);
+        return ResponseEntity.ok(OrderShoppingDTO.fromDTO(order));
+    }
 
-        var cart = order.getCart();
-        if (cart.getItems().isEmpty()) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Cart is empty. Cannot confirm an order.");
-        }
+    @GetMapping("/admin/all")
+    @Operation(summary = "Retrieve all orders", description = "Returns a list of all orders.")
+    public ResponseEntity<List<OrderShoppingDTO>> getAllOrders() {
+        var orders = orderService.findAll();
+        var orderList = orders.stream()
+                .map(OrderShoppingDTO::fromDTO)
+                .collect(Collectors.toList());
+        return ResponseEntity.ok(orderList);
+    }
 
-        if (confirm) {
-            for (var item : cart.getItems()) {
-                var product = productService.findById(item.getProduct().getId());
-                if (product == null) {
-                    return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Product not found: " + item.getProduct().getId());
-                }
+    @GetMapping("/history")
+    public ResponseEntity<List<OrderHistoryDTO>> getOrderHistory() {
+        Users user = authenticationService.getAuthenticatedUser();
+        List<OrderShopping> orders = orderService.getUserOrderHistory(user.getId());
 
-                var currentStock = product.getStock();
-                if (currentStock < item.getQuantity()) {
-                    return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                            .body("Insufficient stock for product: " + product.getName());
-                }
-
-                productService.updateStock(product.getId(), currentStock - item.getQuantity());
-            }
-
-            order.setStatus(OrderStatus.COMPLETED);
-        } else {
-            order.setStatus(OrderStatus.CANCELLED);
-        }
-        cart.setTotalPrice(0.0);
-
-        cart.setItems(new ArrayList<>(cart.getItems()));
-        cart.getItems().clear();
-
-        cartService.update(cart.getId(), cart);
-        orderService.update(order.getId(), order);
-
-        return ResponseEntity.ok("Order " + (confirm ? "confirmed" : "cancelled") + " successfully.");
+        return ResponseEntity.ok(orders.stream()
+                .map(OrderHistoryDTO::fromDTO)
+                .collect(Collectors.toList()));
     }
 }

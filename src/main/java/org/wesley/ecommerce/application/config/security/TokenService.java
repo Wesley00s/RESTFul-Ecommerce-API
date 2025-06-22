@@ -27,7 +27,7 @@ public class TokenService {
             Algorithm algorithm = Algorithm.HMAC256(privateKey);
             Instant now = Instant.now();
 
-            long expirationSeconds = 3600L;
+            long expirationSeconds = 3600L * 24;
             return JWT.create()
                     .withIssuer(issuer)
                     .withSubject(email)

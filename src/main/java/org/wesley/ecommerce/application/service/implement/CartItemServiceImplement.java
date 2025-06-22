@@ -47,27 +47,4 @@ public class CartItemServiceImplement implements CartItemService {
             throw new NoSuchElementException("Cart not found for update");
         }
     }
-
-    @Override
-    public void removeAllFromCartItem(Long productId, Long cartId) {
-        cartItemRepository.removeAllFromCart(productId, cartId);
-    }
-
-    @Override
-    public void removeOnlyFromCartItem(Long productId, Long cartId, int quantity) {
-        cartItemRepository.removeOnlyFromCartItem(productId, cartId, quantity);
-    }
-
-    @Override
-    public void addItemToCart(Long cartId, Long productId, Integer quantity, Double price) {
-        cartItemRepository.addItemToCart(cartId, productId, quantity, price);
-    }
-
-    @Override
-    public void updateTotalPrice(Double newTotalPrice, Long productId, Long cartId) {
-        if (newTotalPrice == null || newTotalPrice <= 0) {
-            throw new IllegalArgumentException("Total price must be greater than zero.");
-        }
-        cartItemRepository.updateTotalPrice(newTotalPrice, productId, cartId);
-    }
 }

@@ -8,6 +8,12 @@ import java.util.UUID;
 
 @Service
 public interface CartService {
+    void addProductToCart(Cart cart, Long productId, Integer quantity);
+
+    void removeProductFromCart(Cart cart, Long productId, int quantity);
+
+    void toggleItemSelection(Cart cart, Long itemId, boolean selected);
+
     Cart create(Cart cart);
 
     Cart findById(Long id);

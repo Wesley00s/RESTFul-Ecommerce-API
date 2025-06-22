@@ -4,19 +4,15 @@ import jakarta.transaction.Transactional;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
+import org.wesley.ecommerce.application.domain.enumeration.ItemStatus;
 import org.wesley.ecommerce.application.domain.model.CartItem;
 
 public interface CartItemRepository extends JpaRepository<CartItem, Long> {
 
     @Modifying
     @Transactional
-    @Query(value = "INSERT INTO cart_item (cart_id, product_id, quantity, price) VALUES (?1, ?2, ?3, ?4)", nativeQuery = true)
-    void addItemToCart(Long cartId, Long productId, Integer quantity, Double price);
-
-    @Modifying
-    @Transactional
-    @Query(value = "DELETE FROM cart_item WHERE product_id = ?1 AND cart_id = ?2", nativeQuery = true)
-    void removeAllFromCart(Long productId, Long cartId);
+    @Query(value = "INSERT INTO cart_item (cart_id, product_id, quantity, status, price) VALUES (?1, ?2, ?3, ?4, ?5)", nativeQuery = true)
+    void addItemToCart(Long cartId, Long productId, Integer quantity, ItemStatus status, Double price);
 
     @Modifying
     @Transactional

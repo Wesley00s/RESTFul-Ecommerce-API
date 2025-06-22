@@ -2,10 +2,14 @@ package org.wesley.ecommerce.application.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.persistence.EntityNotFoundException;
 import lombok.Data;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.wesley.ecommerce.application.controller.dto.CartDTO;
+import org.wesley.ecommerce.application.exceptions.BusinessException;
+import org.wesley.ecommerce.application.exceptions.InsufficientStockException;
 import org.wesley.ecommerce.application.service.CartItemService;
 import org.wesley.ecommerce.application.service.CartService;
 import org.wesley.ecommerce.application.service.ProductService;
@@ -26,76 +30,19 @@ public class CartController {
     @PostMapping
     public ResponseEntity<String> addProductFromCart(
             @RequestParam("product") Long productId,
-            @RequestParam("quantity") Integer quantity) {
+            @RequestParam("quantity") Integer quantity
+    ) {
         var user = authenticationService.getAuthenticatedUser();
         var cart = authenticationService.getActiveCart(user);
 
-        var product = productService.findById(productId);
-        if (product == null) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Product not found.");
-        }
-
-        if (!productService.isStockAvailable(productId, quantity)) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Product is not available");
-        }
-
-        var existingCartItem = cart.getItems().stream()
-                .filter(item -> item.getProduct().getId().equals(productId))
-                .findFirst();
-
-        var totalPrice = product.getPrice() * quantity;
-
-        if (existingCartItem.isPresent()) {
-            var cartItem = existingCartItem.get();
-            cartItem.setQuantity(cartItem.getQuantity() + quantity);
-
-            cart.setTotalPrice(cart.getTotalPrice() + totalPrice);
-            cartService.update(cart.getId(), cart);
-            cart.getItems().forEach(
-                    it -> cartItemService.updateTotalPrice(cart.getTotalPrice(),
-                            it.getProduct().getId(), cart.getId()));
-
-            return ResponseEntity.ok("Product quantity updated in cart successfully.");
-        } else {
-            cartItemService.addItemToCart(cart.getId(), productId, quantity, totalPrice);
-
-            cart.setTotalPrice(cart.getTotalPrice() + totalPrice);
-            cartService.update(cart.getId(), cart);
-
+        try {
+            cartService.addProductToCart(cart, productId, quantity);
             return ResponseEntity.ok("Product added to cart successfully.");
+        } catch (EntityNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+        } catch (InsufficientStockException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
         }
-    }
-
-    @Operation(summary = "Remove all products references from cart", description = "Remove all product references from existing cart")
-    @DeleteMapping
-    public ResponseEntity<String> removeAllProductsReferencesFromCart(
-            @RequestParam("product") Long productId) {
-        var user = authenticationService.getAuthenticatedUser();
-        var cart = authenticationService.getActiveCart(user);
-
-        if (cart == null) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("User does not have an active cart.");
-        }
-        var itemPresent = cart.getItems().stream().filter(it -> productId.equals(it.getProduct().getId())).findFirst();
-        if (itemPresent.isEmpty()) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Product is not in the cart.");
-        }
-
-        var product = productService.findById(productId);
-        if (product == null) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Product not found.");
-        }
-        cartItemService.removeAllFromCartItem(cart.getId(), productId);
-        cart.getItems().removeIf(cartItem -> productId.equals(cartItem.getProduct().getId()));
-
-        double totalPrice = cart.getItems().stream()
-                .map(item -> item.getProduct().getPrice() * item.getQuantity())
-                .reduce(0.0, Double::sum);
-        cart.setTotalPrice(totalPrice);
-
-        cartService.update(cart.getId(), cart);
-
-        return ResponseEntity.ok("Product removed from cart successfully.");
     }
 
     @Operation(summary = "Remove one quantity products references from cart", description = "Remove one quantity product references from existing cart")
@@ -107,43 +54,44 @@ public class CartController {
         var user = authenticationService.getAuthenticatedUser();
         var cart = authenticationService.getActiveCart(user);
 
-        if (cart == null) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("User does not have an active cart.");
+        try {
+            cartService.removeProductFromCart(cart, productId, quantity);
+            return ResponseEntity.ok(quantity + " product(s) removed from cart successfully.");
+        } catch (EntityNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+        } catch (BusinessException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
         }
+    }
 
-        var product = productService.findById(productId);
-        if (product == null) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Product not found.");
+    @Operation(summary = "Get authenticated user's cart", description = "Retrieve active cart for the authenticated user.")
+    @GetMapping
+    public ResponseEntity<CartDTO> getUserCart() {
+        var user = authenticationService.getAuthenticatedUser();
+        var cart = authenticationService.getActiveCart(user);
+        var activeCart = cartService.findById(cart.getId());
+        return ResponseEntity.ok(
+                CartDTO.fromDTO(activeCart)
+        );
+    }
+
+    @Operation(summary = "Toggle item selection in cart", description = "Mark item as pending if selected is true, unselected otherwise")
+    @PutMapping("/item/unselect")
+    public ResponseEntity<String> toggleItemSelectionInCart(
+            @RequestParam("item") Long itemId,
+            @RequestParam(value = "selected", defaultValue = "false") boolean selected
+    ) {
+        var user = authenticationService.getAuthenticatedUser();
+        var cart = authenticationService.getActiveCart(user);
+
+        try {
+            cartService.toggleItemSelection(cart, itemId, selected);
+            String message = "Item " + (selected ? "selected" : "unselected") + " in cart successfully.";
+            return ResponseEntity.ok(message);
+        } catch (EntityNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+        } catch (BusinessException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
         }
-
-        var cartItem = cart.getItems().stream()
-                .filter(item -> productId.equals(item.getProduct().getId()))
-                .findFirst();
-
-        if (cartItem.isEmpty()) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Product is not in the cart.");
-        }
-
-        if (cartItem.get().getQuantity() < quantity) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("You cannot remove more products than are in the cart.");
-        }
-
-        cartItemService.removeOnlyFromCartItem(productId, cart.getId(), quantity);
-        var item = cartItem.get();
-        item.setQuantity(item.getQuantity() - quantity);
-
-        if (item.getQuantity() == 0) {
-            cart.getItems().remove(item);
-        }
-
-        double newTotalPrice = cart.getItems().stream()
-                .mapToDouble(it -> it.getProduct().getPrice() * it.getQuantity())
-                .sum();
-        cart.setTotalPrice(newTotalPrice);
-        cartService.update(cart.getId(), cart);
-        cart.getItems().forEach(
-                it -> cartItemService.updateTotalPrice(cart.getTotalPrice(),
-                        it.getProduct().getId(), cart.getId()));
-        return ResponseEntity.ok(quantity + " " + product.getName() + " removed from cart successfully.");
     }
 }

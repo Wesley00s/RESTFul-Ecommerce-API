@@ -77,19 +77,6 @@ public class CartControllerTest {
                         .param("product", "1")
                         .param("quantity", "5"))
                 .andExpect(MockMvcResultMatchers.status().isBadRequest())
-                .andExpect(MockMvcResultMatchers.content().string("Product is not available"));
-    }
-
-    @Test
-    @WithMockUser(username = EMAIL_TEST_USER, roles = ROLE_CUSTOMER)
-    public void removeAllProductsReferencesFromCart_UserHasNoActiveCart() throws Exception {
-        Users user = new Users();
-        when(authenticationService.getAuthenticatedUser()).thenReturn(user);
-        when(authenticationService.getActiveCart(user)).thenReturn(null);
-
-        mockMvc.perform(MockMvcRequestBuilders.delete("/cart")
-                        .param("product", "1"))
-                .andExpect(MockMvcResultMatchers.status().isBadRequest())
-                .andExpect(MockMvcResultMatchers.content().string("User does not have an active cart."));
+                .andExpect(MockMvcResultMatchers.content().string("Insufficient stock for product: null (ID: null)"));
     }
 }

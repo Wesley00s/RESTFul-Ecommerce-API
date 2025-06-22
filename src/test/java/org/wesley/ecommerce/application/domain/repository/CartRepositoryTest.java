@@ -29,7 +29,7 @@ class CartRepositoryTest {
         entityManager.persist(user);
 
         Cart cart = new Cart();
-        cart.setUsers(user);
+        cart.setUser(user);
         entityManager.persist(cart);
 
         // Act
@@ -38,7 +38,7 @@ class CartRepositoryTest {
         // Assert
         assertNotNull(retrievedCart, "The cart should not be null");
         assertEquals(cart.getId(), retrievedCart.getId(), "The retrieved cart should have the same ID");
-        assertEquals(cart.getUsers().getId(), retrievedCart.getUsers().getId(),
+        assertEquals(cart.getUser().getId(), retrievedCart.getUser().getId(),
                 "The retrieved cart should belong to the correct user");
     }
 

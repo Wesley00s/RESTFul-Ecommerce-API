@@ -7,6 +7,7 @@ import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.test.context.ActiveProfiles;
+import org.wesley.ecommerce.application.domain.enumeration.ItemStatus;
 import org.wesley.ecommerce.application.domain.model.Cart;
 import org.wesley.ecommerce.application.domain.model.CartItem;
 import org.wesley.ecommerce.application.domain.model.Product;
@@ -38,7 +39,7 @@ class CartItemRepositoryTest {
         product = entityManager.persistAndFlush(product);
 
         // Act
-        cartItemRepository.addItemToCart(cart.getId(), product.getId(), 2, 200.0);
+        cartItemRepository.addItemToCart(cart.getId(), product.getId(), 2, ItemStatus.PENDING, 200.0);
 
         // Assert
         List<CartItem> items = entityManager
@@ -65,7 +66,7 @@ class CartItemRepositoryTest {
         // Act & Assert
         assertThrows(
                 DataIntegrityViolationException.class,
-                () -> cartItemRepository.addItemToCart(invalidCartId, invalidProductId, 2, 200.0),
+                () -> cartItemRepository.addItemToCart(invalidCartId, invalidProductId, 2, ItemStatus.PENDING, 200.0),
                 "Expected an DataIntegrityViolationException to be thrown for invalid cart or product"
         );
 
@@ -75,43 +76,6 @@ class CartItemRepositoryTest {
                 .getResultList();
 
         assertTrue(items.isEmpty(), "No items should be added to the cart for invalid inputs");
-    }
-
-
-    @Test
-    @DisplayName("Should remove all products from cart")
-    void removeAllFromCartSucess() {
-        // Arrange
-        Cart cart = new Cart();
-        cart = entityManager.persistAndFlush(cart);
-
-        Product product = new Product();
-        product.setName("Test Product");
-        product.setPrice(100.0);
-        product = entityManager.persistAndFlush(product);
-
-        cartItemRepository.addItemToCart(cart.getId(), product.getId(), 2, 200.0);
-        cartItemRepository.addItemToCart(cart.getId(), product.getId(), 3, 300.0);
-
-        List<CartItem> itemsBeforeRemoval = entityManager
-                .getEntityManager()
-                .createQuery("SELECT ci FROM CartItem ci WHERE ci.cart.id = :cartId", CartItem.class)
-                .setParameter("cartId", cart.getId())
-                .getResultList();
-
-        assertEquals(2, itemsBeforeRemoval.size(), "There should be 2 items in the cart before removal");
-
-        // Act
-        cartItemRepository.removeAllFromCart(product.getId(), cart.getId());
-
-        // Assert
-        List<CartItem> itemsAfterRemoval = entityManager
-                .getEntityManager()
-                .createQuery("SELECT ci FROM CartItem ci WHERE ci.cart.id = :cartId", CartItem.class)
-                .setParameter("cartId", cart.getId())
-                .getResultList();
-
-        assertTrue(itemsAfterRemoval.isEmpty(), "The cart should be empty after removing all products");
     }
 
     @Test
@@ -126,8 +90,8 @@ class CartItemRepositoryTest {
         product.setPrice(100.0);
         product = entityManager.persistAndFlush(product);
 
-        cartItemRepository.addItemToCart(cart.getId(), product.getId(), 2, 200.0);
-        cartItemRepository.addItemToCart(cart.getId(), product.getId(), 3, 300.0);
+        cartItemRepository.addItemToCart(cart.getId(), product.getId(), 2, ItemStatus.PENDING, 200.0);
+        cartItemRepository.addItemToCart(cart.getId(), product.getId(), 3, ItemStatus.PENDING, 300.0);
 
         List<CartItem> itemsBefore = entityManager
                 .getEntityManager()
@@ -140,7 +104,7 @@ class CartItemRepositoryTest {
         // Act
         Long invalidCartId = -1L;
         Long invalidProductId = -1L;
-        cartItemRepository.removeAllFromCart(invalidProductId, invalidCartId);
+        cartItemRepository.removeOnlyFromCartItem(invalidProductId, invalidCartId, 1);
 
         // Assert
         List<CartItem> itemsAfter = entityManager
@@ -164,7 +128,7 @@ class CartItemRepositoryTest {
         product.setPrice(100.0);
         product = entityManager.persistAndFlush(product);
 
-        cartItemRepository.addItemToCart(cart.getId(), product.getId(), 2, 200.0);
+        cartItemRepository.addItemToCart(cart.getId(), product.getId(), 2, ItemStatus.PENDING, 200.0);
 
         CartItem cartItemBeforeUpdate = entityManager
                 .getEntityManager()

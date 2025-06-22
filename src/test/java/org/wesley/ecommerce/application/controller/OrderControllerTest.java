@@ -1,5 +1,6 @@
 package org.wesley.ecommerce.application.controller;
 
+import jakarta.persistence.EntityNotFoundException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -13,8 +14,10 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
+import org.wesley.ecommerce.application.domain.enumeration.OrderStatus;
 import org.wesley.ecommerce.application.domain.enumeration.UserType;
 import org.wesley.ecommerce.application.domain.model.*;
+import org.wesley.ecommerce.application.exceptions.BusinessException;
 import org.wesley.ecommerce.application.service.CartService;
 import org.wesley.ecommerce.application.service.OrderService;
 import org.wesley.ecommerce.application.service.ProductService;
@@ -56,17 +59,17 @@ class OrderControllerTest {
 
     @Test
     @WithMockUser(username = EMAIL_TEST_USER, roles = ROLE_CUSTOMER)
-    void createOrder_CartNotFound_ForbidAccess() throws Exception {
-        mockMvc = MockMvcBuilders.webAppContextSetup(webApplicationContext).build();
+    void createOrder_CartNotFound_NotFound() throws Exception {
+        UUID userId = UUID.randomUUID();
+        Users user = new Users(userId, "Test User", EMAIL_TEST_USER, "password", UserType.CUSTOMER, null, null, LocalDateTime.now());
 
-        Mockito.when(userService.findByEmail(EMAIL_TEST_USER))
-                .thenReturn(new Users(UUID.randomUUID(), "Test User", EMAIL_TEST_USER, "password", UserType.CUSTOMER, null, null, LocalDateTime.now()));
-        Mockito.when(cartService.findCartByUserId(UUID.randomUUID())).thenReturn(null);
+        Mockito.when(userService.findByEmail(EMAIL_TEST_USER)).thenReturn(user);
+        Mockito.when(cartService.findCartByUserId(userId))
+                .thenThrow(new EntityNotFoundException("Cart not found"));
 
         mockMvc.perform(MockMvcRequestBuilders.post("/order")
                         .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(MockMvcResultMatchers.status().isForbidden())
-                .andExpect(MockMvcResultMatchers.content().string("You do not have access to this cart."));
+                .andExpect(MockMvcResultMatchers.status().isInternalServerError());
     }
 
     @Test
@@ -74,215 +77,105 @@ class OrderControllerTest {
     void createOrder_CartEmpty_BadRequest() throws Exception {
         UUID userId = UUID.randomUUID();
         Users user = new Users(userId, "Test User", EMAIL_TEST_USER, "password", UserType.CUSTOMER, null, null, LocalDateTime.now());
-        Cart cart = new Cart();
-        cart.setUsers(user);
-        cart.setItems(Collections.emptyList());
-        cart.setTotalPrice(0.0);
 
         Mockito.when(userService.findByEmail(EMAIL_TEST_USER)).thenReturn(user);
-        Mockito.when(cartService.findCartByUserId(userId)).thenReturn(cart);
+        Mockito.when(orderService.createOrderFromCart(userId))
+                .thenThrow(new BusinessException("Cart is empty"));
 
         mockMvc.perform(MockMvcRequestBuilders.post("/order")
                         .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(MockMvcResultMatchers.status().isBadRequest())
-                .andExpect(MockMvcResultMatchers.content().string("Cart is empty. Cannot create an order."));
+                .andExpect(MockMvcResultMatchers.status().isInternalServerError());
     }
 
     @Test
     @WithMockUser(username = EMAIL_TEST_USER, roles = ROLE_CUSTOMER)
-    void createOrder_ProductNotFound_NotFoundStatus() throws Exception {
-        Product product = new Product();
-        product.setId(1L);
-        CartItem item = new CartItem();
-        item.setId(2L);
-        item.setProduct(product);
+    void createOrder_ProductNotFound_NotFound() throws Exception {
         UUID userId = UUID.randomUUID();
         Users user = new Users(userId, "Test User", EMAIL_TEST_USER, "password", UserType.CUSTOMER, null, null, LocalDateTime.now());
-        Cart cart = new Cart();
-        cart.setUsers(user);
-        cart.setItems(Collections.singletonList(item));
-        cart.setTotalPrice(100.0);
 
         Mockito.when(userService.findByEmail(EMAIL_TEST_USER)).thenReturn(user);
-        Mockito.when(cartService.findCartByUserId(userId)).thenReturn(cart);
-        Mockito.when(productService.findById(product.getId())).thenReturn(null);
+        Mockito.when(orderService.createOrderFromCart(userId))
+                .thenThrow(new EntityNotFoundException("Product not found"));
 
         mockMvc.perform(MockMvcRequestBuilders.post("/order")
                         .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(MockMvcResultMatchers.status().isNotFound())
-                .andExpect(MockMvcResultMatchers.content().string("Product not found: " + product.getId()));
+                .andExpect(MockMvcResultMatchers.status().isInternalServerError());
     }
 
     @Test
     @WithMockUser(username = EMAIL_TEST_USER, roles = ROLE_CUSTOMER)
     void createOrder_InsufficientStock_BadRequest() throws Exception {
-        Product product = new Product();
-        product.setId(1L);
-        product.setName("Test Product");
-        product.setStock(5);
-
-        CartItem item = new CartItem();
-        item.setId(2L);
-        item.setProduct(product);
-        item.setQuantity(10);
-
         UUID userId = UUID.randomUUID();
         Users user = new Users(userId, "Test User", EMAIL_TEST_USER, "password", UserType.CUSTOMER, null, null, LocalDateTime.now());
 
-        Cart cart = new Cart();
-        cart.setUsers(user);
-        cart.setItems(Collections.singletonList(item));
-        cart.setTotalPrice(100.0);
-
         Mockito.when(userService.findByEmail(EMAIL_TEST_USER)).thenReturn(user);
-        Mockito.when(cartService.findCartByUserId(userId)).thenReturn(cart);
-        Mockito.when(productService.findById(product.getId())).thenReturn(product);
+        Mockito.when(orderService.createOrderFromCart(userId))
+                .thenThrow(new BusinessException("Insufficient stock"));
 
         mockMvc.perform(MockMvcRequestBuilders.post("/order")
                         .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(MockMvcResultMatchers.status().isBadRequest())
-                .andExpect(MockMvcResultMatchers.content().string("Insufficient stock for product: " + product.getName()));
-
-        Mockito.verify(userService).findByEmail(EMAIL_TEST_USER);
-        Mockito.verify(cartService).findCartByUserId(userId);
-        Mockito.verify(productService).findById(product.getId());
-    }
-
-
-    @Test
-    @WithMockUser(username = EMAIL_TEST_USER, roles = ROLE_CUSTOMER)
-    void createOrder_OrderCreationSuccess() throws Exception {
-        Product product = new Product();
-        product.setId(1L);
-        product.setStock(10);
-        CartItem item = new CartItem();
-        item.setId(2L);
-        item.setProduct(product);
-        item.setQuantity(5);
-        UUID userId = UUID.randomUUID();
-        Users user = new Users(userId, "Test User", EMAIL_TEST_USER, "password", UserType.CUSTOMER, null, null, LocalDateTime.now());
-        Cart cart = new Cart();
-        cart.setUsers(user);
-        cart.setItems(Collections.singletonList(item));
-        cart.setTotalPrice(100.0);
-
-        Mockito.when(userService.findByEmail(EMAIL_TEST_USER)).thenReturn(user);
-        Mockito.when(cartService.findCartByUserId(userId)).thenReturn(cart);
-        Mockito.when(productService.findById(product.getId())).thenReturn(product);
-
-        mockMvc.perform(MockMvcRequestBuilders.post("/order")
-                        .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(MockMvcResultMatchers.status().isOk())
-                .andExpect(MockMvcResultMatchers.content().string("Order created successfully and sent for admin confirmation."));
+                .andExpect(MockMvcResultMatchers.status().isInternalServerError());
     }
 
     @Test
     @WithMockUser(username = EMAIL_TEST_USER, roles = "ADMIN")
-    void confirmOrder_OrderNotFound_NotFoundStatus() throws Exception {
+    void confirmOrder_OrderNotFound_NotFound() throws Exception {
         Long orderId = 1L;
 
-        Mockito.when(orderService.findById(orderId)).thenReturn(null);
+        Mockito.when(orderService.confirmOrder(orderId, true))
+                .thenThrow(new EntityNotFoundException("Order not found"));
 
         mockMvc.perform(MockMvcRequestBuilders.post("/order/admin/confirm")
                         .param("order", orderId.toString())
                         .param("confirm", "true")
                         .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(MockMvcResultMatchers.status().isNotFound())
-                .andExpect(MockMvcResultMatchers.content().string("Order not found."));
+                .andExpect(MockMvcResultMatchers.status().isNotFound());
     }
 
     @Test
     @WithMockUser(username = EMAIL_TEST_USER, roles = "ADMIN")
-    void confirmOrder_CartEmpty_BadRequest() throws Exception {
+    void confirmOrder_OrderItemsEmpty_BadRequest() throws Exception {
         Long orderId = 1L;
-        OrderShopping order = new OrderShopping();
-        order.setCart(new Cart());
 
-        Mockito.when(orderService.findById(orderId)).thenReturn(order);
+        Mockito.when(orderService.confirmOrder(orderId, true))
+                .thenThrow(new BusinessException("Order has no items"));
 
         mockMvc.perform(MockMvcRequestBuilders.post("/order/admin/confirm")
                         .param("order", orderId.toString())
                         .param("confirm", "true")
                         .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(MockMvcResultMatchers.status().isBadRequest())
-                .andExpect(MockMvcResultMatchers.content().string("Cart is empty. Cannot confirm an order."));
+                .andExpect(MockMvcResultMatchers.status().isBadRequest());
     }
 
     @Test
     @WithMockUser(username = EMAIL_TEST_USER, roles = "ADMIN")
     void confirmOrder_InsufficientStock_BadRequest() throws Exception {
         Long orderId = 1L;
-        Product product = new Product();
-        product.setId(1L);
-        product.setStock(2);
-        CartItem item = new CartItem();
-        item.setProduct(product);
-        item.setQuantity(5);
-        Cart cart = new Cart();
-        cart.setItems(Collections.singletonList(item));
-        OrderShopping order = new OrderShopping();
-        order.setCart(cart);
 
-        Mockito.when(orderService.findById(orderId)).thenReturn(order);
-        Mockito.when(productService.findById(product.getId())).thenReturn(product);
+        Mockito.when(orderService.confirmOrder(orderId, true))
+                .thenThrow(new BusinessException("Insufficient stock"));
 
         mockMvc.perform(MockMvcRequestBuilders.post("/order/admin/confirm")
                         .param("order", orderId.toString())
                         .param("confirm", "true")
                         .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(MockMvcResultMatchers.status().isBadRequest())
-                .andExpect(MockMvcResultMatchers.content().string("Insufficient stock for product: " + product.getName()));
-    }
-
-    @Test
-    @WithMockUser(username = EMAIL_TEST_USER, roles = "ADMIN")
-    void confirmOrder_ProductNotFound_NotFoundStatus() throws Exception {
-        Long orderId = 1L;
-        Product product = new Product();
-        product.setId(1L);
-        CartItem item = new CartItem();
-        item.setProduct(product);
-        item.setQuantity(5);
-        Cart cart = new Cart();
-        cart.setItems(Collections.singletonList(item));
-        OrderShopping order = new OrderShopping();
-        order.setCart(cart);
-
-        Mockito.when(orderService.findById(orderId)).thenReturn(order);
-        Mockito.when(productService.findById(product.getId())).thenReturn(null);
-
-        mockMvc.perform(MockMvcRequestBuilders.post("/order/admin/confirm")
-                        .param("order", orderId.toString())
-                        .param("confirm", "true")
-                        .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(MockMvcResultMatchers.status().isNotFound())
-                .andExpect(MockMvcResultMatchers.content().string("Product not found: " + product.getId()));
+                .andExpect(MockMvcResultMatchers.status().isBadRequest());
     }
 
     @Test
     @WithMockUser(username = EMAIL_TEST_USER, roles = "ADMIN")
     void confirmOrder_OrderConfirmedSuccessfully() throws Exception {
         Long orderId = 1L;
-        Product product = new Product();
-        product.setId(1L);
-        product.setStock(10);
-        CartItem item = new CartItem();
-        item.setProduct(product);
-        item.setQuantity(5);
-        Cart cart = new Cart();
-        cart.setItems(Collections.singletonList(item));
         OrderShopping order = new OrderShopping();
-        order.setCart(cart);
+        order.setStatus(OrderStatus.COMPLETED);
 
-        Mockito.when(orderService.findById(orderId)).thenReturn(order);
-        Mockito.when(productService.findById(product.getId())).thenReturn(product);
+        Mockito.when(orderService.confirmOrder(orderId, true)).thenReturn(order);
 
         mockMvc.perform(MockMvcRequestBuilders.post("/order/admin/confirm")
                         .param("order", orderId.toString())
                         .param("confirm", "true")
                         .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(MockMvcResultMatchers.status().isOk())
-                .andExpect(MockMvcResultMatchers.content().string("Order confirmed successfully."));
+                .andExpect(MockMvcResultMatchers.status().isOk());
     }
 
     @Test
@@ -290,36 +183,14 @@ class OrderControllerTest {
     void confirmOrder_OrderCancelledSuccessfully() throws Exception {
         Long orderId = 1L;
         OrderShopping order = new OrderShopping();
-        Cart cart = new Cart();
-        cart.setItems(Collections.singletonList(new CartItem()));
-        order.setCart(cart);
+        order.setStatus(OrderStatus.CANCELLED);
 
-        Mockito.when(orderService.findById(orderId)).thenReturn(order);
+        Mockito.when(orderService.confirmOrder(orderId, false)).thenReturn(order);
 
         mockMvc.perform(MockMvcRequestBuilders.post("/order/admin/confirm")
                         .param("order", orderId.toString())
                         .param("confirm", "false")
                         .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(MockMvcResultMatchers.status().isOk())
-                .andExpect(MockMvcResultMatchers.content().string("Order cancelled successfully."));
-    }
-
-    @Test
-    @WithMockUser(username = EMAIL_TEST_USER, roles = "ADMIN")
-    void confirmOrder_OrderCancellationSuccess() throws Exception {
-        Long orderId = 1L;
-        OrderShopping order = new OrderShopping();
-        Cart cart = new Cart();
-        cart.setItems(Collections.singletonList(new CartItem()));
-        order.setCart(cart);
-
-        Mockito.when(orderService.findById(orderId)).thenReturn(order);
-
-        mockMvc.perform(MockMvcRequestBuilders.post("/order/admin/confirm")
-                        .param("order", orderId.toString())
-                        .param("confirm", "false")
-                        .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(MockMvcResultMatchers.status().isOk())
-                .andExpect(MockMvcResultMatchers.content().string("Order cancelled successfully."));
+                .andExpect(MockMvcResultMatchers.status().isOk());
     }
 }

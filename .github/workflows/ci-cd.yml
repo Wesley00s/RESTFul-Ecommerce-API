@@ -47,24 +47,24 @@ jobs:
           docker push $IMAGE_NAME:${{ github.sha }}
           docker push $IMAGE_NAME:latest
 
-  deploy:
-    runs-on: ubuntu-latest
-    needs: build
-    if: github.ref == 'refs/heads/main'
-    steps:
-      - name: Setup SSH
-        uses: webfactory/ssh-agent@v0.9.0
-        with:
-          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
-
-      - name: Deploy to Vagrant server
-        run: |
-          ssh -p ${{ secrets.SSH_PORT }} \
-              -o StrictHostKeyChecking=no \
-              -o UserKnownHostsFile=/dev/null \
-              ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} \
-              "cd /home/vagrant/app && \
-               docker login -u ${{ secrets.DOCKERHUB_USERNAME }} -p ${{ secrets.DOCKERHUB_TOKEN }} && \
-               docker pull $IMAGE_NAME:latest && \
-               docker-compose down && \
-               docker-compose up -d"
+#  deploy:
+#    runs-on: ubuntu-latest
+#    needs: build
+#    if: github.ref == 'refs/heads/main'
+#    steps:
+#      - name: Setup SSH
+#        uses: webfactory/ssh-agent@v0.9.0
+#        with:
+#          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+#
+#      - name: Deploy to Vagrant server
+#        run: |
+#          ssh -p ${{ secrets.SSH_PORT }} \
+#              -o StrictHostKeyChecking=no \
+#              -o UserKnownHostsFile=/dev/null \
+#              ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} \
+#              "cd /home/vagrant/app && \
+#               docker login -u ${{ secrets.DOCKERHUB_USERNAME }} -p ${{ secrets.DOCKERHUB_TOKEN }} && \
+#               docker pull $IMAGE_NAME:latest && \
+#               docker-compose down && \
+#               docker-compose up -d"

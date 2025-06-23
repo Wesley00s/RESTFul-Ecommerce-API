@@ -1,6 +1,6 @@
 services:
   app:
-    image: ecommerce-api-image:latest
+    image: wesley00s/ecommerce-spring-api:latest
     build:
       context: .
     container_name: ecommerce-app

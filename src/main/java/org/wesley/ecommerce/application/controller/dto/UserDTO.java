@@ -18,20 +18,6 @@ public record UserDTO(
         LocalDateTime createdAt
 ) {
 
-    public static UserDTO fromUser(Users users) {
-        return new UserDTO(
-                users.getName(),
-                users.getEmail(),
-                users.getPassword(),
-                users.getUserType(),
-                users.getAddress().getStreet(),
-                users.getAddress().getCity(),
-                users.getAddress().getState(),
-                users.getAddress().getZip(),
-                users.getCreatedAt()
-        );
-    }
-
     public Users from() {
         var address = new Address();
         address.setStreet(street());

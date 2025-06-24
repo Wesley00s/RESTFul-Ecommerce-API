@@ -18,22 +18,30 @@ public class CodeGenerate {
         StringBuilder numb = new StringBuilder();
 
         for (int i = 0; i < 10; i++) {
-            numb.append(rand.nextInt(20));
+            numb.append(rand.nextInt(10));
         }
 
-        return numb.toString();
+        String digits = numb.toString();
+        StringBuilder formatted = new StringBuilder();
+
+        for (int i = 0; i < digits.length(); i++) {
+            if (i > 0 && i % 3 == 0) {
+                formatted.append('.');
+            }
+            formatted.append(digits.charAt(i));
+        }
+
+        return formatted.toString();
     }
 
     private static String randomCharacters() {
-        String alp = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
-        String characters = "!@#$%^&*()_-";
-        String set = alp + characters;
-        Random rand = new Random();
+        String alp = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+        Random rand = new SecureRandom();
         StringBuilder letters = new StringBuilder();
 
         for (int i = 0; i < 5; i++) {
-            int randomIndex = rand.nextInt(set.length());
-            letters.append(set.charAt(randomIndex));
+            int randomIndex = rand.nextInt(alp.length());
+            letters.append(alp.charAt(randomIndex));
         }
 
         return letters.toString();

@@ -1,5 +1,6 @@
 package org.wesley.ecommerce.application.service;
 
+import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 import org.wesley.ecommerce.application.domain.model.OrderShopping;
 
@@ -19,7 +20,7 @@ public interface OrderService {
 
     List<OrderShopping> getUserOrderHistory(UUID userId);
 
-    List<OrderShopping> findAll();
+    Page<OrderShopping> findAll(Integer page, Integer pageSize);
 
     OrderShopping update(Long orderId, OrderShopping orderShopping);
 }

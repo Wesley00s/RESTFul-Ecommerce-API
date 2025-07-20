@@ -6,6 +6,10 @@ import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
@@ -72,8 +76,11 @@ class UserControllerTest {
     }
 
     @Test
-    void getUsers_ReturnsListOfUserDTOs() throws Exception {
+    void getUsers_ReturnsPaginatedUserDTOs() throws Exception {
+        UUID userId = UUID.randomUUID();
+        UUID userId2 = UUID.randomUUID();
         Users mockUser1 = new Users();
+        mockUser1.setId(userId);
         mockUser1.setName("John Doe");
         mockUser1.setEmail("johndoe@example.com");
         mockUser1.setPassword("password");
@@ -82,6 +89,7 @@ class UserControllerTest {
         mockUser1.setAddress(new Address(1L, "123 Street", "City", "State", "12345"));
 
         Users mockUser2 = new Users();
+        mockUser2.setId(userId2);
         mockUser2.setName("Jane Smith");
         mockUser2.setEmail("janesmith@example.com");
         mockUser2.setPassword("password");
@@ -89,25 +97,41 @@ class UserControllerTest {
         mockUser2.setCreatedAt(LocalDateTime.now());
         mockUser2.setAddress(new Address(2L, "456 Avenue", "Town", "Region", "67890"));
 
-        Mockito.when(userService.findAll()).thenReturn(List.of(mockUser1, mockUser2));
+        Pageable pageable = PageRequest.of(0, 10);
+        Page<Users> userPage = new PageImpl<>(List.of(mockUser1, mockUser2), pageable, 2);
+
+        Mockito.when(userService.findAll(0, 10)).thenReturn(userPage);
 
         mockMvc.perform(get("/user")
+                        .param("page", "0")
+                        .param("pageSize", "10")
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$[0].name").value("John Doe"))
-                .andExpect(jsonPath("$[0].email").value("johndoe@example.com"))
-                .andExpect(jsonPath("$[0].userType").value(UserType.CUSTOMER.toString()))
-                .andExpect(jsonPath("$[0].street").value("123 Street"))
-                .andExpect(jsonPath("$[0].city").value("City"))
-                .andExpect(jsonPath("$[0].state").value("State"))
-                .andExpect(jsonPath("$[0].zip").value("12345"))
-                .andExpect(jsonPath("$[1].name").value("Jane Smith"))
-                .andExpect(jsonPath("$[1].email").value("janesmith@example.com"))
-                .andExpect(jsonPath("$[1].userType").value(UserType.ADMIN.toString()))
-                .andExpect(jsonPath("$[1].street").value("456 Avenue"))
-                .andExpect(jsonPath("$[1].city").value("Town"))
-                .andExpect(jsonPath("$[1].state").value("Region"))
-                .andExpect(jsonPath("$[1].zip").value("67890"));
+                .andExpect(jsonPath("$.data").isArray())
+                .andExpect(jsonPath("$.pagination").exists())
+
+                .andExpect(jsonPath("$.data[0].id").value(userId.toString()))
+                .andExpect(jsonPath("$.data[0].name").value("John Doe"))
+                .andExpect(jsonPath("$.data[0].email").value("johndoe@example.com"))
+                .andExpect(jsonPath("$.data[0].userType").value(UserType.CUSTOMER.toString()))
+                .andExpect(jsonPath("$.data[0].street").value("123 Street"))
+                .andExpect(jsonPath("$.data[0].city").value("City"))
+                .andExpect(jsonPath("$.data[0].state").value("State"))
+                .andExpect(jsonPath("$.data[0].zip").value("12345"))
+
+                .andExpect(jsonPath("$.data[1].id").value(userId2.toString()))
+                .andExpect(jsonPath("$.data[1].name").value("Jane Smith"))
+                .andExpect(jsonPath("$.data[1].email").value("janesmith@example.com"))
+                .andExpect(jsonPath("$.data[1].userType").value(UserType.ADMIN.toString()))
+                .andExpect(jsonPath("$.data[1].street").value("456 Avenue"))
+                .andExpect(jsonPath("$.data[1].city").value("Town"))
+                .andExpect(jsonPath("$.data[1].state").value("Region"))
+                .andExpect(jsonPath("$.data[1].zip").value("67890"))
+
+                .andExpect(jsonPath("$.pagination.page").value(0))
+                .andExpect(jsonPath("$.pagination.size").value(10))
+                .andExpect(jsonPath("$.pagination.totalElements").value(2))
+                .andExpect(jsonPath("$.pagination.totalPages").value(1));
     }
 
     @Test

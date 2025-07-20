@@ -5,7 +5,6 @@ import org.springframework.stereotype.Service;
 import org.wesley.ecommerce.application.controller.dto.UserDTO;
 import org.wesley.ecommerce.application.domain.model.Users;
 
-import java.util.List;
 import java.util.UUID;
 
 @Service

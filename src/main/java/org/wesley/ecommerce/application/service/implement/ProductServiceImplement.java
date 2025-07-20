@@ -1,6 +1,9 @@
 package org.wesley.ecommerce.application.service.implement;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
+import org.wesley.ecommerce.application.domain.enumeration.ProductCategory;
 import org.wesley.ecommerce.application.domain.model.Product;
 import org.wesley.ecommerce.application.domain.repository.ProductRepository;
 import org.wesley.ecommerce.application.service.ProductService;
@@ -38,6 +41,9 @@ public class ProductServiceImplement implements ProductService {
     @Override
     public List<Product> findAll() {
         return productRepository.findAll();
+    public Page<Product> findAll(Integer page, Integer pageSize) {
+        return productRepository.findAll(PageRequest.of(page, pageSize));
+    }
     }
 
     @Override

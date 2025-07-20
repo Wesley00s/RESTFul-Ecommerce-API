@@ -1,6 +1,8 @@
 package org.wesley.ecommerce.application.service.implement;
 
 import jakarta.persistence.EntityNotFoundException;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.wesley.ecommerce.application.controller.dto.UserDTO;
@@ -8,7 +10,6 @@ import org.wesley.ecommerce.application.domain.model.Users;
 import org.wesley.ecommerce.application.domain.repository.UserRepository;
 import org.wesley.ecommerce.application.service.UserService;
 
-import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.UUID;
 
@@ -29,8 +30,8 @@ public class UserServiceImplement implements UserService {
     }
 
     @Override
-    public List<Users> findAll() {
-        return userRepository.findAll();
+    public Page<Users> findAll(Integer page, Integer pageSize) {
+        return userRepository.findAll(PageRequest.of(page, pageSize));
     }
 
     @Override

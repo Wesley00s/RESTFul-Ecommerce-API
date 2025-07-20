@@ -1,6 +1,8 @@
 package org.wesley.ecommerce.application.service;
 
+import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
+import org.wesley.ecommerce.application.domain.enumeration.ProductCategory;
 import org.wesley.ecommerce.application.domain.model.Product;
 
 import java.util.List;
@@ -13,7 +15,9 @@ public interface ProductService {
 
     Product findById(Long id);
 
-    List<Product> findAll();
+    Page<Product> findAll(Integer page, Integer pageSize);
+
+    Page<Product> findProductsByCategory(ProductCategory category, Integer page, Integer pageSize);
 
     boolean isStockAvailable(Long productId, Integer quantity);
 

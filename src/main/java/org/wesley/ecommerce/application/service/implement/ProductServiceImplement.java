@@ -39,11 +39,13 @@ public class ProductServiceImplement implements ProductService {
     }
 
     @Override
-    public List<Product> findAll() {
-        return productRepository.findAll();
     public Page<Product> findAll(Integer page, Integer pageSize) {
         return productRepository.findAll(PageRequest.of(page, pageSize));
     }
+
+    @Override
+    public Page<Product> findProductsByCategory(ProductCategory category, Integer page, Integer pageSize) {
+        return productRepository.findProductsByCategory(category, PageRequest.of(page, pageSize));
     }
 
     @Override

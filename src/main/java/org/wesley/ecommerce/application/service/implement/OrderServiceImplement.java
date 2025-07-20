@@ -2,6 +2,8 @@ package org.wesley.ecommerce.application.service.implement;
 
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.wesley.ecommerce.application.domain.enumeration.ItemStatus;
 import org.wesley.ecommerce.application.domain.enumeration.OrderStatus;
@@ -109,8 +111,10 @@ public class OrderServiceImplement implements OrderService {
     }
 
     @Override
-    public List<OrderShopping> findAll() {
-        return orderRepository.findAllWithItems();
+    public Page<OrderShopping> findAll(Integer page, Integer pageSize) {
+        return orderRepository.findAllWithItems(
+                PageRequest.of(page, pageSize)
+        );
     }
 
     @Override

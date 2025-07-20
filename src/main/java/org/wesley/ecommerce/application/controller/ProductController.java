@@ -56,13 +56,6 @@ public class ProductController {
 
     @GetMapping
     @Operation(summary = "Get all products", description = "Retrieve a list of all registered products")
-    public ResponseEntity<List<ProductResponseDTO>> getAllProducts() {
-        var products = productService.findAll();
-        List<ProductResponseDTO> prods = new ArrayList<>(List.of());
-        for (var product : products) {
-            prods.add(ProductResponseDTO.fromDTO(product));
-        }
-        return ResponseEntity.ok(prods);
     public ResponseEntity<ApiResponse<ProductResponseDTO>> getAllProducts(
             @RequestParam(name = "page", defaultValue = "0") Integer page,
             @RequestParam(name = "pageSize", defaultValue = "10") Integer pageSize
@@ -70,6 +63,16 @@ public class ProductController {
         var products = productService.findAll(page, pageSize);
         return getApiResponseResponseEntity(products);
     }
+
+    @GetMapping("/category/{category}")
+    @Operation(summary = "Get products by category", description = "Retrieve a list of products filtered by category")
+    public ResponseEntity<ApiResponse<ProductResponseDTO>> getProductsByCategory(
+            @PathVariable ProductCategory category,
+            @RequestParam(name = "page", defaultValue = "0") Integer page,
+            @RequestParam(name = "pageSize", defaultValue = "10") Integer pageSize
+    ) {
+        var products = productService.findProductsByCategory(category, page, pageSize);
+        return getApiResponseResponseEntity(products);
     }
 
     @GetMapping("/{id}")

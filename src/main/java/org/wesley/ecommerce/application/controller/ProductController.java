@@ -3,12 +3,17 @@ package org.wesley.ecommerce.application.controller;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.Data;
+import org.jetbrains.annotations.NotNull;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
+import org.wesley.ecommerce.application.controller.dto.ApiResponse;
+import org.wesley.ecommerce.application.controller.dto.PaginationResponse;
 import org.wesley.ecommerce.application.controller.dto.ProductRequestDTO;
 import org.wesley.ecommerce.application.controller.dto.ProductResponseDTO;
+import org.wesley.ecommerce.application.domain.enumeration.ProductCategory;
 import org.wesley.ecommerce.application.domain.model.Product;
 import org.wesley.ecommerce.application.service.ProductService;
 
@@ -58,6 +63,13 @@ public class ProductController {
             prods.add(ProductResponseDTO.fromDTO(product));
         }
         return ResponseEntity.ok(prods);
+    public ResponseEntity<ApiResponse<ProductResponseDTO>> getAllProducts(
+            @RequestParam(name = "page", defaultValue = "0") Integer page,
+            @RequestParam(name = "pageSize", defaultValue = "10") Integer pageSize
+    ) {
+        var products = productService.findAll(page, pageSize);
+        return getApiResponseResponseEntity(products);
+    }
     }
 
     @GetMapping("/{id}")
@@ -97,5 +109,23 @@ public class ProductController {
     public ResponseEntity<List<Product>> getProductsByCart(@PathVariable Long cartId) {
         var products = productService.findProductsByCart(cartId);
         return ResponseEntity.status(HttpStatus.FOUND).body(products);
+    }
+
+    @NotNull
+    private ResponseEntity<ApiResponse<ProductResponseDTO>> getApiResponseResponseEntity(Page<Product> products) {
+        List<ProductResponseDTO> prods = new ArrayList<>(List.of());
+        for (var product : products) {
+            prods.add(ProductResponseDTO.fromDTO(product));
+        }
+        var pageResponse = new ApiResponse<>(
+                prods,
+                new PaginationResponse(
+                        products.getNumber(),
+                        products.getSize(),
+                        products.getTotalElements(),
+                        products.getTotalPages()
+                )
+        );
+        return ResponseEntity.ok(pageResponse);
     }
 }

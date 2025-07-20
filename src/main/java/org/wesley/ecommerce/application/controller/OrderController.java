@@ -8,6 +8,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.wesley.ecommerce.application.controller.dto.OrderHistoryDTO;
 import org.wesley.ecommerce.application.controller.dto.OrderShoppingDTO;
+import org.wesley.ecommerce.application.controller.dto.ApiResponse;
+import org.wesley.ecommerce.application.controller.dto.PaginationResponse;
 import org.wesley.ecommerce.application.domain.model.*;
 import org.wesley.ecommerce.application.service.CartService;
 import org.wesley.ecommerce.application.service.OrderService;
@@ -48,12 +50,21 @@ class OrderController {
 
     @GetMapping("/admin/all")
     @Operation(summary = "Retrieve all orders", description = "Returns a list of all orders.")
-    public ResponseEntity<List<OrderShoppingDTO>> getAllOrders() {
-        var orders = orderService.findAll();
+    public ResponseEntity<ApiResponse<OrderShoppingDTO>> getAllOrders(
+            @RequestParam(name = "page", defaultValue = "0") Integer page,
+            @RequestParam(name = "pageSize", defaultValue = "10") Integer pageSize
+    ) {
+        var orders = orderService.findAll(page, pageSize);
         var orderList = orders.stream()
                 .map(OrderShoppingDTO::fromDTO)
                 .collect(Collectors.toList());
-        return ResponseEntity.ok(orderList);
+        var pageResponse = new ApiResponse<>(
+                orderList,
+                new PaginationResponse(orders.getNumber(), orders.getSize(), orders.getTotalElements(), orders.getTotalPages())
+        );
+        return ResponseEntity.ok(
+                pageResponse
+        );
     }
 
     @GetMapping("/history")

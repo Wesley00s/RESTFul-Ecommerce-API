@@ -5,6 +5,8 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.Data;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.wesley.ecommerce.application.controller.dto.ApiResponse;
+import org.wesley.ecommerce.application.controller.dto.PaginationResponse;
 import org.wesley.ecommerce.application.controller.dto.UserDTO;
 import org.wesley.ecommerce.application.controller.dto.UserResponseDTO;
 import org.wesley.ecommerce.application.service.CartService;
@@ -45,8 +47,11 @@ public class UserController {
 
     @GetMapping
     @Operation(summary = "Get all users", description = "Retrieve a list of all registered users")
-    public ResponseEntity<List<UserResponseDTO>> getUsers() {
-        var users = userService.findAll();
+    public ResponseEntity<ApiResponse<UserResponseDTO>> getUsers(
+            @RequestParam(name = "page", defaultValue = "0") Integer page,
+            @RequestParam(name = "pageSize", defaultValue = "10") Integer pageSize
+    ) {
+        var users = userService.findAll(page, pageSize);
         var usersDTO = users.stream()
                 .map(user -> new UserResponseDTO(
                         user.getId(),
@@ -60,7 +65,17 @@ public class UserController {
                         user.getAddress().getZip(),
                         user.getCreatedAt()
                 )).toList();
-        return ResponseEntity.ofNullable(usersDTO);
+
+        var pageResponse = new ApiResponse<>(
+                usersDTO,
+                new PaginationResponse(
+                        users.getNumber(),
+                        users.getSize(),
+                        users.getTotalElements(),
+                        users.getTotalPages()
+                )
+        );
+        return ResponseEntity.ofNullable(pageResponse);
     }
 
     @DeleteMapping("/{id}")

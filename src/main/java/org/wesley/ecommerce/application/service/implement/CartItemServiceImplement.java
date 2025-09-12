@@ -1,5 +1,6 @@
 package org.wesley.ecommerce.application.service.implement;
 
+import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.wesley.ecommerce.application.domain.model.CartItem;
 import org.wesley.ecommerce.application.domain.repository.CartItemRepository;
@@ -9,12 +10,9 @@ import java.util.NoSuchElementException;
 import java.util.Optional;
 
 @Service
+@AllArgsConstructor
 public class CartItemServiceImplement implements CartItemService {
     private final CartItemRepository cartItemRepository;
-
-    public CartItemServiceImplement(CartItemRepository cartItemRepository) {
-        this.cartItemRepository = cartItemRepository;
-    }
 
     @Override
     public CartItem findById(Long id) {

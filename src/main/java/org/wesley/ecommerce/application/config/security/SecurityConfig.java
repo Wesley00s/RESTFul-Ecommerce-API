@@ -30,8 +30,18 @@ public class SecurityConfig {
     protected SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
                 .csrf(AbstractHttpConfigurer::disable)
-                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)).authorizeHttpRequests(authorize -> authorize
-                        .requestMatchers("/auth", "/register", "/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html").permitAll()
+                .sessionManagement(session ->
+                        session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .authorizeHttpRequests(authorize ->
+                        authorize
+                        .requestMatchers(
+                                "/auth",
+                                "/register",
+                                "/v3/api-docs/**",
+                                "/swagger-ui/**",
+                                "/swagger-ui.html",
+                                "/docs"
+                        ).permitAll()
                         .requestMatchers(HttpMethod.GET, "/product/**").authenticated()
                         .requestMatchers("/cart/**").authenticated()
                         .requestMatchers(HttpMethod.POST, "/product/**", "/cart/**").hasAuthority("ADMIN")

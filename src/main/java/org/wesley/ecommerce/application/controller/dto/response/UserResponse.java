@@ -1,4 +1,4 @@
-package org.wesley.ecommerce.application.controller.dto;
+package org.wesley.ecommerce.application.controller.dto.response;
 
 import org.wesley.ecommerce.application.domain.enumeration.UserType;
 import org.wesley.ecommerce.application.domain.model.Users;
@@ -6,11 +6,10 @@ import org.wesley.ecommerce.application.domain.model.Users;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
-public record UserResponseDTO(
+public record UserResponse(
         UUID id,
         String name,
         String email,
-        String password,
         UserType userType,
         String street,
         String city,
@@ -19,12 +18,11 @@ public record UserResponseDTO(
         LocalDateTime createdAt
 ) {
 
-    public static UserResponseDTO fromUser(Users users) {
-        return new UserResponseDTO(
+    public static UserResponse fromUser(Users users) {
+        return new UserResponse(
                 users.getId(),
                 users.getName(),
                 users.getEmail(),
-                users.getPassword(),
                 users.getUserType(),
                 users.getAddress().getStreet(),
                 users.getAddress().getCity(),

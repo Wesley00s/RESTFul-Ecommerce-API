@@ -1,4 +1,4 @@
-package org.wesley.ecommerce.application.controller.dto;
+package org.wesley.ecommerce.application.controller.dto.response;
 
 import org.wesley.ecommerce.application.domain.enumeration.OrderStatus;
 import org.wesley.ecommerce.application.domain.model.OrderItem;
@@ -8,26 +8,26 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public record OrderShoppingDTO(
+public record OrderShoppingResponse(
         Long orderId,
-        List<ItemDTO> items,
+        List<ItemResponse> items,
         OrderStatus orderStatus,
         LocalDateTime createdAt
 
 ) {
-    public static OrderShoppingDTO fromDTO(OrderShopping orderShopping) {
-        return new OrderShoppingDTO(
+    public static OrderShoppingResponse fromDTO(OrderShopping orderShopping) {
+        return new OrderShoppingResponse(
                 orderShopping.getId(),
                 orderShopping.getItems().stream()
-                        .map(OrderShoppingDTO::toItemDTO)
+                        .map(OrderShoppingResponse::toItemDTO)
                         .collect(Collectors.toList()),
                 orderShopping.getStatus(),
                 orderShopping.getCreatedAt()
         );
     }
 
-    static ItemDTO toItemDTO(OrderItem item) {
-        return new ItemDTO(
+    public static ItemResponse toItemDTO(OrderItem item) {
+        return new ItemResponse(
                 item.getId(),
                 item.getProduct(),
                 item.getQuantity(),

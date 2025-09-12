@@ -27,3 +27,7 @@ server:
     session:
       timeout: 30m
 
+springdoc:
+  swagger-ui:
+    path: /docs
+

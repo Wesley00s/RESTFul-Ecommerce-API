@@ -34,4 +34,8 @@ out/
 /.nb-gradle/
 
 ### VS Code ###
-.vscode/
+.vscode
+
+## Certs
+/src/main/resources/certs/
+

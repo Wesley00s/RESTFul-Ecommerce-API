@@ -1,32 +1,25 @@
-package org.wesley.ecommerce.application.controller.dto;
+package org.wesley.ecommerce.application.controller.dto.request;
 
 import org.wesley.ecommerce.application.domain.enumeration.ProductCategory;
 import org.wesley.ecommerce.application.domain.model.Product;
 
+import java.util.List;
 
-public record ProductRequestDTO(
+
+public record ProductRequest(
         String name,
-        String imageUrl,
+        String coverImageUrl,
+        List<String> imageUrls,
         String description,
         Integer stock,
         ProductCategory category,
         Double price
 ) {
 
-    public static ProductRequestDTO fromDTO(Product product) {
-        return new ProductRequestDTO(
-                product.getName(),
-                product.getImageUrl(),
-                product.getDescription(),
-                product.getStock(),
-                product.getCategory(),
-                product.getPrice()
-        );
-    }
-
     public static Product getProduct(
             String name,
-            String imageUrl,
+            String coverImageUrl,
+            List<String> imageUrls,
             String code,
             String description,
             Integer stock,
@@ -35,7 +28,8 @@ public record ProductRequestDTO(
     ) {
         Product product = new Product();
         product.setName(name);
-        product.setImageUrl(imageUrl);
+        product.setCoverImageUrl(coverImageUrl);
+        product.getImageUrls().addAll(imageUrls);
         product.setCode(code);
         product.setDescription(description);
         product.setStock(stock);
@@ -47,7 +41,8 @@ public record ProductRequestDTO(
     public Product from(String code) {
         return getProduct(
                 this.name,
-                this.imageUrl,
+                this.coverImageUrl,
+                this.imageUrls,
                 code,
                 this.description,
                 this.stock,

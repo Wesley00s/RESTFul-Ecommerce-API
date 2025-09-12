@@ -1,4 +1,4 @@
-package org.wesley.ecommerce.application.controller.dto;
+package org.wesley.ecommerce.application.controller.dto.request;
 
 import org.wesley.ecommerce.application.domain.enumeration.UserType;
 import org.wesley.ecommerce.application.domain.model.Address;
@@ -6,7 +6,7 @@ import org.wesley.ecommerce.application.domain.model.Users;
 
 import java.time.LocalDateTime;
 
-public record UserDTO(
+public record UserRequest(
         String name,
         String email,
         String password,
@@ -14,8 +14,7 @@ public record UserDTO(
         String street,
         String city,
         String state,
-        String zip,
-        LocalDateTime createdAt
+        String zip
 ) {
 
     public Users from() {
@@ -31,7 +30,7 @@ public record UserDTO(
         usr.setPassword(password());
         usr.setUserType(userType());
         usr.setAddress(address);
-        usr.setCreatedAt(createdAt);
+        usr.setCreatedAt(LocalDateTime.now());
 
         return usr;
     }

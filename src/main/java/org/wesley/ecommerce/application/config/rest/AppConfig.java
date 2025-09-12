@@ -1,4 +1,4 @@
-package org.wesley.ecommerce.application.config;
+package org.wesley.ecommerce.application.config.rest;
 
 import org.apache.hc.client5.http.config.RequestConfig;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;

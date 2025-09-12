@@ -1,4 +1,4 @@
-package org.wesley.ecommerce.application.config;
+package org.wesley.ecommerce.application.config.rest;
 
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;

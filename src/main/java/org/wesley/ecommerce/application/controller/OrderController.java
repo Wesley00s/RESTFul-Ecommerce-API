@@ -6,10 +6,11 @@ import jakarta.transaction.Transactional;
 import lombok.Data;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.wesley.ecommerce.application.controller.dto.OrderHistoryDTO;
-import org.wesley.ecommerce.application.controller.dto.OrderShoppingDTO;
-import org.wesley.ecommerce.application.controller.dto.ApiResponse;
-import org.wesley.ecommerce.application.controller.dto.PaginationResponse;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
+import org.wesley.ecommerce.application.controller.dto.response.OrderHistoryResponse;
+import org.wesley.ecommerce.application.controller.dto.response.OrderShoppingResponse;
+import org.wesley.ecommerce.application.controller.dto.response.ApiResponse;
+import org.wesley.ecommerce.application.controller.dto.response.PaginationResponse;
 import org.wesley.ecommerce.application.domain.model.*;
 import org.wesley.ecommerce.application.service.CartService;
 import org.wesley.ecommerce.application.service.OrderService;
@@ -17,6 +18,7 @@ import org.wesley.ecommerce.application.service.ProductService;
 import org.wesley.ecommerce.application.service.UserService;
 import org.wesley.ecommerce.application.service.implement.AuthenticationService;
 
+import java.net.URI;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -33,30 +35,46 @@ class OrderController {
 
     @PostMapping
     @Transactional
-    @Operation(summary = "Create a new order", description = "Create a new order and send it for admin confirmation.")
-    public ResponseEntity<OrderShoppingDTO> createOrder() {
+    @Operation(
+            summary = "Create a new order",
+            description = "Create a new order and send it for admin confirmation."
+    )
+    public ResponseEntity<OrderShoppingResponse> createOrder() {
         Users user = authenticationService.getAuthenticatedUser();
         OrderShopping order = orderService.createOrderFromCart(user.getId());
-        return ResponseEntity.ok(OrderShoppingDTO.fromDTO(order));
+
+        URI location = ServletUriComponentsBuilder
+                .fromCurrentRequest()
+                .path("/{id}")
+                .buildAndExpand(order.getId())
+                .toUri();
+
+        return ResponseEntity.created(location).body(OrderShoppingResponse.fromDTO(order));
     }
 
     @PostMapping("/admin/confirm")
     @Transactional
-    @Operation(summary = "Confirm or reject an order", description = "Allows an admin to confirm or reject a placed order.")
-    public ResponseEntity<OrderShoppingDTO> confirmOrder(@RequestParam("order") Long orderId, @RequestParam boolean confirm) {
+    @Operation(
+            summary = "Confirm or reject an order",
+            description = "Allows an admin to confirm or reject a placed order."
+    )
+    public ResponseEntity<OrderShoppingResponse> confirmOrder(@RequestParam("order") Long orderId, @RequestParam boolean confirm) {
         OrderShopping order = orderService.confirmOrder(orderId, confirm);
-        return ResponseEntity.ok(OrderShoppingDTO.fromDTO(order));
+        return ResponseEntity.ok(OrderShoppingResponse.fromDTO(order));
     }
 
     @GetMapping("/admin/all")
-    @Operation(summary = "Retrieve all orders", description = "Returns a list of all orders.")
-    public ResponseEntity<ApiResponse<OrderShoppingDTO>> getAllOrders(
+    @Operation(
+            summary = "Retrieve all orders",
+            description = "Returns a list of all orders."
+    )
+    public ResponseEntity<ApiResponse<OrderShoppingResponse>> getAllOrders(
             @RequestParam(name = "page", defaultValue = "0") Integer page,
             @RequestParam(name = "pageSize", defaultValue = "10") Integer pageSize
     ) {
         var orders = orderService.findAll(page, pageSize);
         var orderList = orders.stream()
-                .map(OrderShoppingDTO::fromDTO)
+                .map(OrderShoppingResponse::fromDTO)
                 .collect(Collectors.toList());
         var pageResponse = new ApiResponse<>(
                 orderList,
@@ -68,12 +86,16 @@ class OrderController {
     }
 
     @GetMapping("/history")
-    public ResponseEntity<List<OrderHistoryDTO>> getOrderHistory() {
+    @Operation(
+            summary = "Retrieve user order history",
+            description = "Returns a list of all orders for the authenticated user."
+    )
+    public ResponseEntity<List<OrderHistoryResponse>> getOrderHistory() {
         Users user = authenticationService.getAuthenticatedUser();
         List<OrderShopping> orders = orderService.getUserOrderHistory(user.getId());
 
         return ResponseEntity.ok(orders.stream()
-                .map(OrderHistoryDTO::fromDTO)
+                .map(OrderHistoryResponse::fromDTO)
                 .collect(Collectors.toList()));
     }
 }

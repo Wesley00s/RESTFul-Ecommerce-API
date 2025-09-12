@@ -2,11 +2,12 @@ package org.wesley.ecommerce.application.service.implement;
 
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
+import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.wesley.ecommerce.application.domain.enumeration.ItemStatus;
 import org.wesley.ecommerce.application.domain.model.Cart;
 import org.wesley.ecommerce.application.domain.model.CartItem;
-import org.wesley.ecommerce.application.domain.model.Product;
+import org.wesley.ecommerce.application.domain.model.Users;
 import org.wesley.ecommerce.application.domain.repository.CartItemRepository;
 import org.wesley.ecommerce.application.domain.repository.CartRepository;
 import org.wesley.ecommerce.application.exceptions.BusinessException;
@@ -16,33 +17,41 @@ import org.wesley.ecommerce.application.service.ProductService;
 
 import java.util.List;
 import java.util.NoSuchElementException;
-import java.util.Optional;
 import java.util.UUID;
 
 import static org.wesley.ecommerce.application.utility.CalcAmount.recalculateCartTotal;
 
 
 @Service
+@AllArgsConstructor
 public class CartServiceImplement implements CartService {
     private final CartRepository cartRepository;
     private final CartItemRepository cartItemRepository;
     private final ProductService productService;
+    private final AuthenticationService authenticationService;
 
-    public CartServiceImplement(CartRepository cartRepository, CartItemRepository cartItemRepository, ProductService productService) {
-        this.cartRepository = cartRepository;
-        this.cartItemRepository = cartItemRepository;
-        this.productService = productService;
+    @Override
+    public Cart currentCart() {
+        assert authenticationService != null;
+        var user = authenticationService.getAuthenticatedUser();
+        if (user == null) {
+            throw new IllegalStateException("User is not authenticated");
+        }
+        return authenticationService.getActiveCart(user);
     }
+
 
     @Transactional
     @Override
-    public void addProductToCart(Cart cart, Long productId, Integer quantity) {
-        Product product = productService.findById(productId);
+    public void addProductToCart(Long productId, Integer quantity) {
+        var cart = currentCart();
+
+        var product = productService.findById(productId);
         if (product == null) {
             throw new EntityNotFoundException("Product not found.");
         }
 
-        Optional<CartItem> existingPendingItem = cart.getItems().stream()
+        var existingPendingItem = cart.getItems().stream()
                 .filter(item -> item.getProduct().getId().equals(productId))
                 .filter(item -> item.getStatus().equals(ItemStatus.PENDING))
                 .findFirst();
@@ -53,14 +62,14 @@ public class CartServiceImplement implements CartService {
         }
 
         if (existingPendingItem.isPresent()) {
-            CartItem cartItem = existingPendingItem.get();
+            var cartItem = existingPendingItem.get();
             int newQuantity = cartItem.getQuantity() + quantity;
             cartItem.setQuantity(newQuantity);
             cartItem.setPrice(product.getPrice() * newQuantity);
             cartItemRepository.save(cartItem);
         } else {
-            double itemPrice = product.getPrice() * quantity;
-            CartItem newCartItem = new CartItem();
+            Double itemPrice = product.getPrice() * quantity;
+            var newCartItem = new CartItem();
             newCartItem.setCart(cart);
             newCartItem.setProduct(product);
             newCartItem.setQuantity(quantity);
@@ -76,19 +85,25 @@ public class CartServiceImplement implements CartService {
 
     @Transactional
     @Override
-    public void removeProductFromCart(Cart cart, Long productId, int quantity) {
-        Product product = productService.findById(productId);
+    public void removeProductFromCart(Long productId, Integer quantity) {
+        var cart = currentCart();
+
+        var product = productService.findById(productId);
         if (product == null) {
             throw new EntityNotFoundException("Product not found.");
         }
 
-        CartItem cartItem = cart.getItems().stream()
+        var cartItem = cart.getItems().stream()
                 .filter(item -> productId.equals(item.getProduct().getId()))
                 .findFirst()
                 .orElseThrow(() -> new EntityNotFoundException("Product is not in the cart"));
 
         if (cartItem.getQuantity() < quantity) {
             throw new BusinessException("Cannot remove more products than are in the cart");
+        }
+
+        if (quantity <= 0) {
+            throw new BusinessException("Quantity must be greater than zero");
         }
 
         cartItem.setQuantity(cartItem.getQuantity() - quantity);
@@ -107,8 +122,10 @@ public class CartServiceImplement implements CartService {
 
     @Transactional
     @Override
-    public void toggleItemSelection(Cart cart, Long itemId, boolean selected) {
-        CartItem cartItem = cart.getItems().stream()
+    public Boolean toggleItemSelection(Long itemId, Boolean selected) {
+        var cart = currentCart();
+
+        var cartItem = cart.getItems().stream()
                 .filter(item -> item.getId().equals(itemId))
                 .findFirst()
                 .orElseThrow(() -> new EntityNotFoundException("Item is not in the cart"));
@@ -122,8 +139,8 @@ public class CartServiceImplement implements CartService {
 
         recalculateCartTotal(cart);
         cartRepository.save(cart);
+        return cartItem.getStatus().equals(ItemStatus.PENDING);
     }
-
 
     @Override
     public Cart create(Cart cart) {
@@ -142,7 +159,7 @@ public class CartServiceImplement implements CartService {
 
     @Override
     public Cart update(Long cartId, Cart cart) {
-        Optional<Cart> cartOptional = cartRepository.findById(cartId);
+        var cartOptional = cartRepository.findById(cartId);
         if (cartOptional.isPresent()) {
             Cart cartExisting = cartOptional.get();
 

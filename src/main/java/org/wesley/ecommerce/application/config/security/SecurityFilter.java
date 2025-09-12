@@ -2,10 +2,10 @@ package org.wesley.ecommerce.application.config.security;
 
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
-import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -14,8 +14,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
-import org.wesley.ecommerce.application.domain.model.Users;
-import org.wesley.ecommerce.application.service.UserService;
+import org.wesley.ecommerce.application.domain.repository.UserRepository;
 
 import java.io.IOException;
 import java.util.List;
@@ -25,56 +24,59 @@ import java.util.List;
 public class SecurityFilter extends OncePerRequestFilter {
     private static final Logger logger = LoggerFactory.getLogger(SecurityFilter.class);
     private final TokenService tokenService;
-    private final UserService userService;
+    private final UserRepository userRepository;
 
     @Override
-    protected void doFilterInternal(@NotNull HttpServletRequest request, @NotNull HttpServletResponse response, @NotNull FilterChain filterChain)
+    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
+
         String token = this.recoveryToken(request);
-        logger.debug("Token retrieved: {}", token);
 
-        if (token != null && !token.isEmpty()) {
-            String userEmail = tokenService.validateToken(token);
-            logger.debug("Email extract from token: {}", userEmail);
+        if (token == null || token.isEmpty()) {
+            filterChain.doFilter(request, response);
+            return;
+        }
 
-            if (userEmail != null) {
-                Users users = userService.findByEmail(userEmail);
-                if (users != null) {
-                    logger.debug("Find users: {}", users.getEmail());
+        String userEmail = tokenService.validateToken(token);
+
+        if (userEmail == null) {
+            filterChain.doFilter(request, response);
+            return;
+        }
+
+        userRepository.findByEmail(userEmail)
+                .ifPresent(users -> {
+                    logger.debug("User no found: {}", users.getEmail());
 
                     List<SimpleGrantedAuthority> authorities = List.of(
                             new SimpleGrantedAuthority(users.getUserType().name().toUpperCase())
                     );
 
                     UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
-                            users,
-                            null,
-                            authorities
+                            users, null, authorities
                     );
 
                     authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
 
                     SecurityContextHolder.getContext().setAuthentication(authentication);
-                    logger.debug("Authentication configured for the users: {}", users.getEmail());
-                } else {
-                    logger.warn("Users not found for email: {}", userEmail);
-                }
-            } else {
-                logger.warn("Invalid or expired token");
-            }
-        } else {
-            logger.debug("No token found in Authorization header");
-        }
+                    logger.debug("Authentication configured to user: {}", users.getEmail());
+                });
 
         filterChain.doFilter(request, response);
     }
 
     private String recoveryToken(HttpServletRequest request) {
-        String authHeader = request.getHeader("Authorization");
-        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+        Cookie[] cookies = request.getCookies();
+
+        if (cookies == null) {
             return null;
         }
+        for (Cookie cookie : cookies) {
+            if ("token".equals(cookie.getName())) {
+                return cookie.getValue();
+            }
+        }
 
-        return authHeader.substring(7);
+        return null;
     }
 }

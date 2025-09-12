@@ -2,6 +2,7 @@ package org.wesley.ecommerce.application.service.implement;
 
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
+import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
@@ -23,15 +24,10 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
+@AllArgsConstructor
 public class OrderServiceImplement implements OrderService {
     private final OrderRepository orderRepository;
     private final CartService cartService;
-
-
-    public OrderServiceImplement(OrderRepository orderRepository, CartService cartService) {
-        this.orderRepository = orderRepository;
-        this.cartService = cartService;
-    }
 
     @Override
     public OrderShopping create(OrderShopping orderShopping) {
@@ -79,7 +75,7 @@ public class OrderServiceImplement implements OrderService {
     @Override
     @Transactional
     public OrderShopping confirmOrder(Long orderId, boolean confirm) {
-        OrderShopping order = orderRepository.findById(orderId)
+        var order = orderRepository.findById(orderId)
                 .orElseThrow(() -> new EntityNotFoundException("Order not found"));
 
         if (order.getStatus().equals(OrderStatus.COMPLETED)) {
@@ -87,12 +83,13 @@ public class OrderServiceImplement implements OrderService {
         }
 
         if (confirm) {
-            for (OrderItem item : order.getItems()) {
+            for (var item : order.getItems()) {
                 Product product = item.getProduct();
                 if (product.getStock() < item.getQuantity()) {
                     throw new InsufficientStockException(product.getName(), product.getId());
                 }
                 product.setStock(product.getStock() - item.getQuantity());
+                product.setSoldCount(product.getSoldCount() + item.getQuantity());
             }
 
             order.setStatus(OrderStatus.COMPLETED);

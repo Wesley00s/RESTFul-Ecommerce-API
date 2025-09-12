@@ -1,13 +1,19 @@
-FROM eclipse-temurin:21.0.4_7-jdk
-
+FROM gradle:8.6-jdk21-jammy AS build
 WORKDIR /app
 
-COPY build/libs/E-Commerce-Application-0.0.1-SNAPSHOT.jar app.jar
+COPY build.gradle settings.gradle ./
+COPY gradle.properties* ./
+COPY gradle ./gradle
 
-COPY .env .
+RUN gradle dependencies --no-daemon || \
+    { echo "Ignoring possible download failures during dependency resolution"; true; }
 
-ENV SPRING_PROFILES_ACTIVE=prod
+COPY src ./src
+RUN gradle build --no-daemon -x test
+
+FROM eclipse-temurin:21-jre-jammy
+WORKDIR /app
+COPY --from=build /app/build/libs/*.jar app.jar
 
 EXPOSE 8080
-
 ENTRYPOINT ["java", "-jar", "app.jar"]

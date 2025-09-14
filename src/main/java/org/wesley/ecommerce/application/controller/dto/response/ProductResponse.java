@@ -4,16 +4,15 @@ import org.wesley.ecommerce.application.domain.enumeration.ProductCategory;
 import org.wesley.ecommerce.application.domain.model.Product;
 
 import java.time.LocalDateTime;
-import java.util.List;
-
-import static org.wesley.ecommerce.application.controller.dto.request.ProductRequest.getProduct;
+import java.util.Map;
 
 
 public record ProductResponse(
         Long id,
         String name,
         String coverImageUrl,
-        List<String> imageUrls,
+        String coverImagePublicId,
+        Map<String, String> imageUrls,
         String code,
         String description,
         Integer stock,
@@ -31,6 +30,7 @@ public record ProductResponse(
                 product.getId(),
                 product.getName(),
                 product.getCoverImageUrl(),
+                product.getCoverImagePublicId(),
                 product.getImageUrls(),
                 product.getCode(),
                 product.getDescription(),
@@ -45,15 +45,18 @@ public record ProductResponse(
     }
 
     public Product from(String code) {
-        return getProduct(
-                this.name,
-                this.coverImageUrl,
-                this.imageUrls,
-                code,
-                this.description,
-                this.stock,
-                this.category,
-                this.price
-        );
+        var product = new Product();
+        product.setName(name());
+        product.setCoverImageUrl(coverImageUrl());
+        product.setCoverImagePublicId(coverImagePublicId());
+        product.setImageUrls(imageUrls());
+        product.setCode(code);
+        product.setDescription(description());
+        product.setStock(stock());
+        product.setCategory(category());
+        product.setPrice(price());
+        product.setRating(rating());
+
+        return product;
     }
 }

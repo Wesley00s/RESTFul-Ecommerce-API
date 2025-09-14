@@ -2,6 +2,9 @@ package org.wesley.ecommerce.application.service;
 
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
+import org.wesley.ecommerce.application.controller.dto.request.UpdateProductRequest;
+import org.wesley.ecommerce.application.controller.dto.request.CreateProductRequest;
 import org.wesley.ecommerce.application.domain.enumeration.ProductCategory;
 import org.wesley.ecommerce.application.domain.enumeration.ProductSortBy;
 import org.wesley.ecommerce.application.domain.enumeration.SortDirection;
@@ -11,9 +14,7 @@ import java.util.List;
 
 @Service
 public interface ProductService {
-    Product create(Product product);
-
-    void create(List<Product> products);
+    Product create(CreateProductRequest request, MultipartFile coverImageFile, List<MultipartFile> otherImageFiles);
 
     Product findById(Long id);
 
@@ -23,7 +24,7 @@ public interface ProductService {
 
     boolean isStockAvailable(Long productId, Integer quantity);
 
-    Product update(Long id, Product product);
+    Product update(Long id, UpdateProductRequest request, MultipartFile newCoverImage, List<MultipartFile> newImageFiles);
 
     void delete(Product product);
 

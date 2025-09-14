@@ -7,8 +7,8 @@ import lombok.NoArgsConstructor;
 import org.wesley.ecommerce.application.domain.enumeration.ProductCategory;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 
 @Data
 @AllArgsConstructor
@@ -20,28 +20,40 @@ public class Product {
     private Long id;
     private String name;
     private String coverImageUrl;
+    private String coverImagePublicId;
+
     @ElementCollection
     @CollectionTable(
-            name = "product_image_urls",
+            name = "product_images",
             joinColumns = @JoinColumn(name = "product_id")
     )
+    @MapKeyColumn(name = "image_public_id")
     @Column(name = "image_url")
-    private List<String> imageUrls = new ArrayList<>();
+    private Map<String, String> imageUrls = new HashMap<>();
+
     @Column(unique = true)
     private String code;
+
     @Column(length = 10000)
     private String description;
+
     private Integer stock;
+
     @Enumerated(EnumType.STRING)
     private ProductCategory category;
+
     @Column(nullable = false)
     private Double price;
+
     @Column(nullable = false, columnDefinition = "default 0")
     private Double rating = 0.0;
+
     @Column(nullable = false, columnDefinition = "default 0")
     private Integer soldCount = 0;
+
     @Column(nullable = false)
     private Boolean isAvailable = true;
+    
     @Column(nullable = false)
     private LocalDateTime createdAt;
 

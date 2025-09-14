@@ -74,7 +74,6 @@ public class TokenService {
         return Base64.getDecoder().decode(key);
     }
 
-
     public String generateToken(String email) {
         try {
             Algorithm algorithm = Algorithm.RSA256(publicKey, privateKey);

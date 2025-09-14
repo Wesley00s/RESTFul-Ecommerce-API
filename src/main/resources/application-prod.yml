@@ -1,3 +1,13 @@
+jwt:
+  key:
+    private:
+      path: classpath:certs/private_key.pem
+    public:
+      path: classpath:certs/public_key.pem
+
+app:
+  issuer: ${ISSUER}
+
 spring:
   devtools:
     livereload:
@@ -19,6 +29,11 @@ spring:
       hibernate:
         format_sql: true
 
+  servlet:
+    multipart:
+      max-file-size: 10MB
+      max-request-size: 10MB
+
 server:
   port: 8080
   address: 0.0.0.0
@@ -31,3 +46,14 @@ springdoc:
   swagger-ui:
     path: /docs
 
+logging:
+  level:
+    org.springframework.web: INFO
+    org.springframework.security: INFO
+    org.springframework.security.oauth2: INFO
+    org.springframework.data.jpa: INFO
+
+cloudinary:
+  cloud_name: ${CLOUDINARY_NAME}
+  api_key: ${CLOUDINARY_API_KEY}
+  api_secret: ${CLOUDINARY_API_SECRET}

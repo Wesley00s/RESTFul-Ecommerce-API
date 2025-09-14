@@ -2,15 +2,18 @@ package org.wesley.ecommerce.application.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
+import org.wesley.ecommerce.application.controller.dto.request.UpdateProductRequest;
 import org.wesley.ecommerce.application.controller.dto.response.ApiResponse;
 import org.wesley.ecommerce.application.controller.dto.response.PaginationResponse;
-import org.wesley.ecommerce.application.controller.dto.request.ProductRequest;
+import org.wesley.ecommerce.application.controller.dto.request.CreateProductRequest;
 import org.wesley.ecommerce.application.controller.dto.response.ProductResponse;
 import org.wesley.ecommerce.application.domain.enumeration.ProductCategory;
 import org.wesley.ecommerce.application.domain.enumeration.ProductSortBy;
@@ -21,7 +24,6 @@ import org.wesley.ecommerce.application.service.ProductService;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.wesley.ecommerce.application.utility.CodeGenerate.randomCode;
 
 @RestController
 @RequestMapping("/product")
@@ -31,34 +33,23 @@ import static org.wesley.ecommerce.application.utility.CodeGenerate.randomCode;
 public class ProductController {
     final private ProductService productService;
 
-    @PostMapping
+    @PostMapping(consumes = "multipart/form-data")
     @Operation(
             summary = "Create a new product",
             description = "Create a new product and return the created product's data"
     )
-    public ResponseEntity<Product> createProduct(@RequestBody ProductRequest product) {
-        var productToCreate = productService.create(product.from(randomCode()));
+    public ResponseEntity<Product> createProduct(
+            @RequestPart("productData") @Valid CreateProductRequest product,
+            @RequestPart("coverImage") MultipartFile coverImageFile,
+            @RequestPart(value = "otherImages", required = false) List<MultipartFile> otherImageFiles
+    ) {
+        var productToCreate = productService.create(product, coverImageFile, otherImageFiles);
         var location = ServletUriComponentsBuilder
                 .fromCurrentRequest()
                 .path("/{id}")
                 .buildAndExpand(productToCreate.getId())
                 .toUri();
         return ResponseEntity.created(location).body(productToCreate);
-    }
-
-    @PostMapping("/list")
-    @Operation(
-            summary = "Save an list of products",
-            description = "Create an list of products"
-    )
-    public ResponseEntity<List<Product>> createProducts(@RequestBody List<ProductRequest> products) {
-        var prods = new ArrayList<Product>();
-        products.forEach(product -> prods.add(productService.create(product.from(randomCode()))));
-        var location = ServletUriComponentsBuilder
-                .fromCurrentRequest()
-                .build()
-                .toUri();
-        return ResponseEntity.created(location).body(prods);
     }
 
     @GetMapping
@@ -114,14 +105,16 @@ public class ProductController {
         return ResponseEntity.noContent().build();
     }
 
-    @PutMapping("/{id}")
-    @Operation(
-            summary = "Update a product",
-            description = "Update the data of an existing user based on its ID"
-    )
-    public ResponseEntity<ProductResponse> updateProduct(@PathVariable Long id, @RequestBody ProductResponse productResponse) {
-        var updatedProduct = productService.update(id, productResponse.from(randomCode()));
-        return ResponseEntity.ok(ProductResponse.fromDTO(updatedProduct));
+    @PutMapping(value = "/{id}", consumes = "multipart/form-data")
+    @Operation(summary = "Update an existing product")
+    public ResponseEntity<Product> updateProduct(
+            @PathVariable Long id,
+            @RequestPart("productData") @Valid UpdateProductRequest productRequest,
+            @RequestPart(value = "coverImage", required = false) MultipartFile newCoverImage,
+            @RequestPart(value = "newImages", required = false) List<MultipartFile> newImageFiles
+    ) {
+        Product updatedProduct = productService.update(id, productRequest, newCoverImage, newImageFiles);
+        return ResponseEntity.ok(updatedProduct);
     }
 
     @GetMapping("/cart/{cartId}")

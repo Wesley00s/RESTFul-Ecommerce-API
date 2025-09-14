@@ -39,3 +39,4 @@ out/
 ## Certs
 /src/main/resources/certs/
 
+.env

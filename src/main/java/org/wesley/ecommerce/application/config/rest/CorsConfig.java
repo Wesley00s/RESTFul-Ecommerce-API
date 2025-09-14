@@ -14,8 +14,7 @@ public class CorsConfig implements WebMvcConfigurer {
                 .allowedOrigins("http://192.168.10.102:4200")
                 .allowedOrigins("http://192.168.0.113:8090")
                 .allowedOrigins("http://192.168.0.113:4200")
-//                .allowedOrigins("*")
-                .allowedMethods("GET", "POST", "PUT", "DELETE")
+                .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS", "HEAD")
                 .allowedHeaders("*")
                 .allowCredentials(true);
 

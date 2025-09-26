@@ -38,7 +38,7 @@ server:
   port: 8080
   address: 0.0.0.0
   servlet:
-    context-path: /ecommerce
+    context-path: /ecommerce/api
     session:
       timeout: 30m
 

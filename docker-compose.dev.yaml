@@ -3,6 +3,7 @@ services:
     image: ecommerce-api-image:latest
     networks:
       - app_network
+      - shared_ecommerce_network
     build:
       context: .
     container_name: ecommerce-app
@@ -22,6 +23,7 @@ services:
     container_name: ecommerce-db
     networks:
       - app_network
+      - shared_ecommerce_network
     restart: always
     shm_size: 128mb
     ports:
@@ -42,3 +44,5 @@ services:
 networks:
     app_network:
         driver: bridge
+    shared_ecommerce_network:
+      external: true

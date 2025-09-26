@@ -8,6 +8,7 @@ import io.swagger.v3.oas.models.info.License;
 import io.swagger.v3.oas.models.security.SecurityRequirement;
 import io.swagger.v3.oas.models.security.SecurityScheme;
 import io.swagger.v3.oas.models.servers.Server;
+import org.springdoc.core.models.GroupedOpenApi; 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -18,30 +19,27 @@ public class SwaggerConfig {
 
     @Bean
     public OpenAPI customOpenAPI() {
-        final String securitySchemeName = "bearerAuth";
+        final String securitySchemeName = "cookieAuth";
+        final String cookieName = "token";
 
         return new OpenAPI()
                 .components(new Components()
                         .addSecuritySchemes(securitySchemeName, new SecurityScheme()
-                                .name(securitySchemeName)
-                                .type(SecurityScheme.Type.HTTP)
-                                .scheme("bearer")
-                                .bearerFormat("JWT")
+                                .name(cookieName)
+                                .type(SecurityScheme.Type.APIKEY)
+                                .in(SecurityScheme.In.COOKIE)
                         )
                 )
                 .addSecurityItem(new SecurityRequirement().addList(securitySchemeName))
-
                 .servers(
-                    List.of(
-                        new Server().url("http://localhost:8080/ecommerce").description("Development Server"),
-                        new Server().url("https://api.ecommerce.com").description("Production Server")
-                    )
+                        List.of(
+                                new Server().url("http://localhost:8080/ecommerce/api").description("Development Server"),
+                                new Server().url("https://api.ecommerce.com").description("Production Server")
+                        )
                 )
-
                 .info(new Info()
-                        .title("Ecommerce API")
-                        .version("1.0")
-                        .description("Ecommerce System API Documentation.")
+                        .title("Ecommerce API") 
+                        .description("Documentação geral da API do sistema de E-commerce.")
                         .contact(new Contact()
                                 .email("wesley300rodrigues@gmail.com")
                                 .name("Wesley Rodrigues")
@@ -53,4 +51,19 @@ public class SwaggerConfig {
                         )
                 );
     }
+
+    @Bean
+    public GroupedOpenApi publicApiV1() {
+        return GroupedOpenApi.builder()
+                .group("v1") 
+                .pathsToMatch("/v1/**")
+                .addOpenApiCustomizer(openApi -> {
+                    openApi.setInfo(new Info()
+                            .title("Ecommerce API - V1")
+                            .version("1.0")
+                            .description("API versão 1.0, focada nos recursos iniciais do e-commerce. Esta versão é estável."));
+                })
+                .build();
+    }
+
 }

@@ -2,23 +2,30 @@ package org.wesley.ecommerce.application.service.implement;
 
 import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
-import org.wesley.ecommerce.application.controller.dto.request.UpdateProductRequest;
-import org.wesley.ecommerce.application.controller.dto.request.CreateProductRequest;
+import org.wesley.ecommerce.application.api.v1.controller.dto.event.CommentAddedEvent;
+import org.wesley.ecommerce.application.api.v1.controller.dto.event.ReviewCreatedEvent;
+import org.wesley.ecommerce.application.api.v1.controller.dto.request.CreateCommentRequest;
+import org.wesley.ecommerce.application.api.v1.controller.dto.request.CreateReviewRequest;
+import org.wesley.ecommerce.application.api.v1.controller.dto.request.UpdateProductRequest;
+import org.wesley.ecommerce.application.api.v1.controller.dto.request.CreateProductRequest;
 import org.wesley.ecommerce.application.domain.enumeration.ProductCategory;
 import org.wesley.ecommerce.application.domain.enumeration.ProductSortBy;
 import org.wesley.ecommerce.application.domain.enumeration.SortDirection;
 import org.wesley.ecommerce.application.domain.model.Product;
+import org.wesley.ecommerce.application.domain.model.Users;
 import org.wesley.ecommerce.application.domain.repository.CartRepository;
 import org.wesley.ecommerce.application.domain.repository.ProductRepository;
 import org.wesley.ecommerce.application.service.ProductService;
 
 import java.util.List;
 import java.util.NoSuchElementException;
+import java.util.UUID;
 
 import static org.wesley.ecommerce.application.utility.CodeGenerate.randomCode;
 
@@ -28,6 +35,7 @@ public class ProductServiceImplement implements ProductService {
     final private ProductRepository productRepository;
     private final CartRepository cartRepository;
     private final CloudinaryService cloudinaryService;
+    private final RabbitTemplate rabbitTemplate;
 
     @Override
     @Transactional
@@ -161,5 +169,38 @@ public class ProductServiceImplement implements ProductService {
             throw new NoSuchElementException("Cart not found.");
         }
         return productRepository.findProductsByCart(cartId);
+    }
+
+    @Override
+    public void submitReview(Long productId, Users authenticatedUser, CreateReviewRequest request) {
+        this.findById(productId);
+        var event = new ReviewCreatedEvent(
+                UUID.randomUUID().toString(), 
+                productId,
+                authenticatedUser.getId(),
+                authenticatedUser.getName(), 
+                request.rating(),
+                request.content()
+        );
+
+        String reviewCreatedQueue = "review.created.queue";
+        rabbitTemplate.convertAndSend(reviewCreatedQueue, event);
+    }
+
+    @Override
+    public void submitComment(Long productId, UUID reviewId, Users authenticatedUser, CreateCommentRequest request) {
+        var event = new CommentAddedEvent(
+                reviewId,
+                UUID.randomUUID().toString(), 
+                request.parentCommentId(),    
+                authenticatedUser.getId(),
+                authenticatedUser.getName(),
+                request.content(),
+                request.mentionedUserId(),
+                request.mentionedUserName()
+        );
+
+        String commentAddedQueue = "comment.added.queue"; 
+        rabbitTemplate.convertAndSend(commentAddedQueue, event);
     }
 }

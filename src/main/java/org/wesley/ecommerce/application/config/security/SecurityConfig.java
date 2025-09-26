@@ -14,6 +14,7 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.wesley.ecommerce.application.config.rest.SecurityFilter;
 import org.wesley.ecommerce.application.exceptions.CustomAccessDeniedHandler;
 import org.wesley.ecommerce.application.exceptions.CustomAuthenticationEntryPoint;
 
@@ -26,6 +27,14 @@ public class SecurityConfig {
     private final CustomAccessDeniedHandler accessDeniedHandler;
     private final CustomAuthenticationEntryPoint authenticationEntryPoint;
 
+    private final String[] PUBLIC_URLS = {
+            "/v1/auth/**",
+            "/v3/api-docs/**",
+            "/swagger-ui/**",
+            "/swagger-ui.html",
+            "/docs"
+    };
+
     @Bean
     protected SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
@@ -34,20 +43,13 @@ public class SecurityConfig {
                         session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(authorize ->
                         authorize
-                        .requestMatchers(
-                                "/auth",
-                                "/register",
-                                "/v3/api-docs/**",
-                                "/swagger-ui/**",
-                                "/swagger-ui.html",
-                                "/docs"
-                        ).permitAll()
-                        .requestMatchers(HttpMethod.GET, "/product/**").authenticated()
-                        .requestMatchers("/cart/**").authenticated()
-                        .requestMatchers(HttpMethod.POST, "/product/**", "/cart/**").hasAuthority("ADMIN")
-                        .requestMatchers(HttpMethod.PUT, "/product/**").hasAuthority("ADMIN")
-                        .requestMatchers(HttpMethod.DELETE, "/product/**").hasAuthority("ADMIN")
-                        .requestMatchers("/order/admin/**").hasAuthority("ADMIN")
+                        .requestMatchers(PUBLIC_URLS).permitAll()
+                        .requestMatchers(HttpMethod.GET, "/v1/product/**").permitAll()
+                        .requestMatchers("/v1/cart/**").authenticated()
+                        .requestMatchers(HttpMethod.POST, "/v1/product/**", "/v1/cart/**").hasAuthority("ADMIN")
+                        .requestMatchers(HttpMethod.PUT, "/v1/product/**").hasAuthority("ADMIN")
+                        .requestMatchers(HttpMethod.DELETE, "/v1/product/**").hasAuthority("ADMIN")
+                        .requestMatchers("/v1/order/admin/**").hasAuthority("ADMIN")
                         .anyRequest().authenticated()
                 )
 

@@ -1,4 +1,4 @@
-package org.wesley.ecommerce.application.config.security;
+package org.wesley.ecommerce.application.config.rest;
 
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -14,6 +14,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
+import org.wesley.ecommerce.application.config.security.TokenService;
 import org.wesley.ecommerce.application.domain.repository.UserRepository;
 
 import java.io.IOException;

@@ -1,4 +1,4 @@
-package org.wesley.ecommerce.application.controller;
+package org.wesley.ecommerce.application.api.v1.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -7,10 +7,10 @@ import lombok.Data;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
-import org.wesley.ecommerce.application.controller.dto.response.OrderHistoryResponse;
-import org.wesley.ecommerce.application.controller.dto.response.OrderShoppingResponse;
-import org.wesley.ecommerce.application.controller.dto.response.ApiResponse;
-import org.wesley.ecommerce.application.controller.dto.response.PaginationResponse;
+import org.wesley.ecommerce.application.api.v1.controller.dto.response.OrderHistoryResponse;
+import org.wesley.ecommerce.application.api.v1.controller.dto.response.OrderShoppingResponse;
+import org.wesley.ecommerce.application.api.v1.controller.dto.response.ApiResponse;
+import org.wesley.ecommerce.application.api.v1.controller.dto.response.PaginationResponse;
 import org.wesley.ecommerce.application.domain.model.*;
 import org.wesley.ecommerce.application.service.CartService;
 import org.wesley.ecommerce.application.service.OrderService;
@@ -23,7 +23,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @RestController
-@RequestMapping("/order")
+@RequestMapping("/v1/order")
 @Data
 @Tag(name = "OrderShopping Controller", description = "RESTful API for managing shopping.")
 class OrderController {

@@ -1,14 +1,14 @@
-package org.wesley.ecommerce.application.controller;
+package org.wesley.ecommerce.application.api.v1.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.Data;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.wesley.ecommerce.application.controller.dto.response.ApiResponse;
-import org.wesley.ecommerce.application.controller.dto.response.PaginationResponse;
-import org.wesley.ecommerce.application.controller.dto.request.UserRequest;
-import org.wesley.ecommerce.application.controller.dto.response.UserResponse;
+import org.wesley.ecommerce.application.api.v1.controller.dto.response.ApiResponse;
+import org.wesley.ecommerce.application.api.v1.controller.dto.response.PaginationResponse;
+import org.wesley.ecommerce.application.api.v1.controller.dto.request.UserRequest;
+import org.wesley.ecommerce.application.api.v1.controller.dto.response.UserResponse;
 import org.wesley.ecommerce.application.service.CartService;
 import org.wesley.ecommerce.application.service.UserService;
 
@@ -16,7 +16,7 @@ import java.util.UUID;
 
 
 @RestController
-@RequestMapping("/user")
+@RequestMapping("/v1/user")
 @Tag(name = "Users Controller", description = "RESTFul API for managing users.")
 @Data
 public class UserController {

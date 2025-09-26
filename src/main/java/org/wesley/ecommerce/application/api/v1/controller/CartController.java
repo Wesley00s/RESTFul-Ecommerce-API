@@ -1,16 +1,16 @@
-package org.wesley.ecommerce.application.controller;
+package org.wesley.ecommerce.application.api.v1.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.wesley.ecommerce.application.controller.dto.response.CartResponse;
-import org.wesley.ecommerce.application.controller.dto.response.MessageResponse;
+import org.wesley.ecommerce.application.api.v1.controller.dto.response.CartResponse;
+import org.wesley.ecommerce.application.api.v1.controller.dto.response.MessageResponse;
 import org.wesley.ecommerce.application.service.CartService;
 
 @RestController
-@RequestMapping("/cart")
+@RequestMapping("/v1/cart")
 @RequiredArgsConstructor
 @Tag(name = "Cart Controller", description = "RESTFul API for managing a shopping cart.")
 public class CartController {

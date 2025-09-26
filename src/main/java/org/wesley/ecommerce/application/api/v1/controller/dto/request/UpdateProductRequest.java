@@ -1,4 +1,4 @@
-package org.wesley.ecommerce.application.controller.dto.request;
+package org.wesley.ecommerce.application.api.v1.controller.dto.request;
 
 import jakarta.validation.constraints.PositiveOrZero;
 import org.wesley.ecommerce.application.domain.enumeration.ProductCategory;

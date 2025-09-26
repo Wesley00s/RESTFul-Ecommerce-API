@@ -1,4 +1,4 @@
-package org.wesley.ecommerce.application.controller.dto.response;
+package org.wesley.ecommerce.application.api.v1.controller.dto.response;
 
 import org.wesley.ecommerce.application.domain.enumeration.UserType;
 import org.wesley.ecommerce.application.domain.model.Users;

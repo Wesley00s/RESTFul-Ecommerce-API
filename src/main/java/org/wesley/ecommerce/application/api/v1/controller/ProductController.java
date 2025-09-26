@@ -1,4 +1,4 @@
-package org.wesley.ecommerce.application.controller;
+package org.wesley.ecommerce.application.api.v1.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -7,26 +7,32 @@ import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
-import org.wesley.ecommerce.application.controller.dto.request.UpdateProductRequest;
-import org.wesley.ecommerce.application.controller.dto.response.ApiResponse;
-import org.wesley.ecommerce.application.controller.dto.response.PaginationResponse;
-import org.wesley.ecommerce.application.controller.dto.request.CreateProductRequest;
-import org.wesley.ecommerce.application.controller.dto.response.ProductResponse;
+import org.wesley.ecommerce.application.api.v1.controller.dto.request.CreateCommentRequest;
+import org.wesley.ecommerce.application.api.v1.controller.dto.request.CreateReviewRequest;
+import org.wesley.ecommerce.application.api.v1.controller.dto.request.UpdateProductRequest;
+import org.wesley.ecommerce.application.api.v1.controller.dto.response.ApiResponse;
+import org.wesley.ecommerce.application.api.v1.controller.dto.response.MessageResponse;
+import org.wesley.ecommerce.application.api.v1.controller.dto.response.PaginationResponse;
+import org.wesley.ecommerce.application.api.v1.controller.dto.request.CreateProductRequest;
+import org.wesley.ecommerce.application.api.v1.controller.dto.response.ProductResponse;
 import org.wesley.ecommerce.application.domain.enumeration.ProductCategory;
 import org.wesley.ecommerce.application.domain.enumeration.ProductSortBy;
 import org.wesley.ecommerce.application.domain.enumeration.SortDirection;
 import org.wesley.ecommerce.application.domain.model.Product;
+import org.wesley.ecommerce.application.domain.model.Users;
 import org.wesley.ecommerce.application.service.ProductService;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 
 @RestController
-@RequestMapping("/product")
+@RequestMapping("/v1/product")
 @Tag(name = "Product Controller", description = "RESTFul API for managing products.")
 @Data
 
@@ -106,7 +112,7 @@ public class ProductController {
     }
 
     @PutMapping(value = "/{id}", consumes = "multipart/form-data")
-    @Operation(summary = "Update an existing product")
+    @Operation(summary = "Update an existing product", description = "Update an existing product")
     public ResponseEntity<Product> updateProduct(
             @PathVariable Long id,
             @RequestPart("productData") @Valid UpdateProductRequest productRequest,
@@ -125,6 +131,36 @@ public class ProductController {
     public ResponseEntity<List<Product>> getProductsByCart(@PathVariable Long cartId) {
         var products = productService.findProductsByCart(cartId);
         return ResponseEntity.ok(products);
+    }
+
+    @PostMapping("/{productId}/reviews")
+    @Operation(
+            summary = "Submit a review for a product",
+            description = "Submits a new review for a specific product, which will be processed asynchronously."
+    )
+    public ResponseEntity<MessageResponse> submitReview(
+            @PathVariable Long productId,
+            @RequestBody @Valid CreateReviewRequest reviewRequest,
+            @AuthenticationPrincipal Users authenticatedUser
+    ) {
+        productService.submitReview(productId, authenticatedUser, reviewRequest);
+
+        return ResponseEntity.accepted().body(new MessageResponse("Review submitted successfully and is being processed."));
+    }
+
+    @PostMapping("/{productId}/comments/{reviewId}/reviews")
+    @Operation(
+            summary = "Submit a comment for a product",
+            description = "Submits a new comment for a specific product, which will be processed asynchronously."
+    )
+    public ResponseEntity<MessageResponse> submitComment(
+            @PathVariable Long productId,
+            @PathVariable UUID reviewId,
+            @RequestBody @Valid CreateCommentRequest commentRequest,
+            @AuthenticationPrincipal Users authenticatedUser
+    ) {
+        productService.submitComment(productId, reviewId, authenticatedUser, commentRequest);
+        return ResponseEntity.accepted().body(new MessageResponse("Comment submitted successfully and is being processed."));
     }
 
     @NotNull

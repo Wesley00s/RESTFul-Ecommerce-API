@@ -9,6 +9,14 @@ app:
   issuer: ${ISSUER}
 
 spring:
+
+  application:
+    name: E-Commerce-Application
+
+  jackson:
+    date-format: yyyy-MM-dd'T'HH:mm:ss.SSS'Z'
+    time-zone: UTC
+
   devtools:
     livereload:
       enabled: true
@@ -35,7 +43,6 @@ spring:
       max-request-size: 10MB
 
 server:
-  port: 8080
   address: 0.0.0.0
   servlet:
     context-path: /ecommerce/api
@@ -45,6 +52,15 @@ server:
 springdoc:
   swagger-ui:
     path: /docs
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "health,prometheus"
+  metrics:
+    tags:
+      application: ${spring.application.name}
 
 logging:
   level:

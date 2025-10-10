@@ -20,7 +20,9 @@ import org.wesley.ecommerce.application.domain.enumeration.SortDirection;
 import org.wesley.ecommerce.application.domain.model.Product;
 import org.wesley.ecommerce.application.domain.model.Users;
 import org.wesley.ecommerce.application.domain.repository.CartRepository;
+import org.wesley.ecommerce.application.domain.repository.ProductCategoryRepository;
 import org.wesley.ecommerce.application.domain.repository.ProductRepository;
+import org.wesley.ecommerce.application.exceptions.local.ProductCategoryNotFoundException;
 import org.wesley.ecommerce.application.service.ProductService;
 
 import java.util.List;
@@ -33,6 +35,7 @@ import static org.wesley.ecommerce.application.utility.CodeGenerate.randomCode;
 @AllArgsConstructor
 public class ProductServiceImplement implements ProductService {
     final private ProductRepository productRepository;
+    final private ProductCategoryRepository productCategoryRepository;
     private final CartRepository cartRepository;
     private final CloudinaryService cloudinaryService;
     private final RabbitTemplate rabbitTemplate;
@@ -40,13 +43,17 @@ public class ProductServiceImplement implements ProductService {
     @Override
     @Transactional
     public Product create(CreateProductRequest request, MultipartFile coverImageFile, List<MultipartFile> otherImageFiles) {
+        var category = productCategoryRepository.findById(request.categoryId()).orElseThrow(() ->
+                new ProductCategoryNotFoundException(request.categoryId())
+        );
+
         CloudinaryService.UploadResult coverUploadResult = cloudinaryService.uploadFile(coverImageFile);
         Product product = new Product();
         product.setName(request.name());
         product.setDescription(request.description());
         product.setCoverImageUrl(coverUploadResult.url());
         product.setCoverImagePublicId(coverUploadResult.publicId());
-        product.setCategory(request.category());
+        product.setCategory(category);
         product.setPrice(request.price());
         product.setStock(request.stock());
         product.setCode(randomCode());
@@ -68,6 +75,11 @@ public class ProductServiceImplement implements ProductService {
 
         return productRepository.findById(id)
                 .orElseThrow(NoSuchElementException::new);
+    }
+
+    @Override
+    public Product findProductByCode(String code) {
+        return productRepository.findProductByCode(code);
     }
 
     @Override
@@ -105,6 +117,10 @@ public class ProductServiceImplement implements ProductService {
     @Transactional
     @Override
     public Product update(Long id, UpdateProductRequest request, MultipartFile newCoverImage, List<MultipartFile> newImageFiles) {
+        var category = productCategoryRepository.findById(request.categoryId()).orElseThrow(() ->
+                new ProductCategoryNotFoundException(request.categoryId())
+        );
+
         Product productExist = productRepository.findById(id)
                 .orElseThrow(() -> new NoSuchElementException("Product not found for update"));
 
@@ -139,7 +155,7 @@ public class ProductServiceImplement implements ProductService {
 
         if (request.name() != null) productExist.setName(request.name());
         if (request.price() != null) productExist.setPrice(request.price());
-        if (request.category() != null) productExist.setCategory(request.category());
+        if (category != null) productExist.setCategory(category);
         if (request.description() != null) productExist.setDescription(request.description());
         if (request.stock() != null) productExist.setStock(request.stock());
 
@@ -173,12 +189,17 @@ public class ProductServiceImplement implements ProductService {
 
     @Override
     public void submitReview(Long productId, Users authenticatedUser, CreateReviewRequest request) {
-        this.findById(productId);
+        var product = this.findById(productId);
+        if (product == null) {
+            throw new NoSuchElementException("Product not found.");
+        }
+
         var event = new ReviewCreatedEvent(
                 UUID.randomUUID().toString(), 
                 productId,
+                product.getCode(),
                 authenticatedUser.getId(),
-                authenticatedUser.getName(), 
+                authenticatedUser.getName(),
                 request.rating(),
                 request.content()
         );

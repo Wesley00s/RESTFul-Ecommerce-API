@@ -15,8 +15,8 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.wesley.ecommerce.application.config.rest.SecurityFilter;
-import org.wesley.ecommerce.application.exceptions.CustomAccessDeniedHandler;
-import org.wesley.ecommerce.application.exceptions.CustomAuthenticationEntryPoint;
+import org.wesley.ecommerce.application.exceptions.global.CustomAccessDeniedHandler;
+import org.wesley.ecommerce.application.exceptions.global.CustomAuthenticationEntryPoint;
 
 @Configuration
 @EnableWebSecurity
@@ -28,11 +28,13 @@ public class SecurityConfig {
     private final CustomAuthenticationEntryPoint authenticationEntryPoint;
 
     private final String[] PUBLIC_URLS = {
+            "/v1",
             "/v1/auth/**",
             "/v3/api-docs/**",
             "/swagger-ui/**",
             "/swagger-ui.html",
-            "/docs"
+            "/docs",
+            "/actuator/prometheus"
     };
 
     @Bean

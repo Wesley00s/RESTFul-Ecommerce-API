@@ -13,8 +13,8 @@ import org.wesley.ecommerce.application.domain.model.OrderItem;
 import org.wesley.ecommerce.application.domain.model.OrderShopping;
 import org.wesley.ecommerce.application.domain.model.Product;
 import org.wesley.ecommerce.application.domain.repository.OrderRepository;
-import org.wesley.ecommerce.application.exceptions.CartEmptyException;
-import org.wesley.ecommerce.application.exceptions.InsufficientStockException;
+import org.wesley.ecommerce.application.exceptions.local.CartEmptyException;
+import org.wesley.ecommerce.application.exceptions.local.InsufficientStockException;
 import org.wesley.ecommerce.application.service.CartService;
 import org.wesley.ecommerce.application.service.OrderService;
 

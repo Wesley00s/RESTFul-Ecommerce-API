@@ -23,6 +23,8 @@ public interface ProductService {
 
     Product findById(Long id);
 
+    Product findProductByCode(String code);
+
     Page<Product> findAll(ProductSortBy sortBy, SortDirection sortDirection, String name, Integer page, Integer pageSize);
 
     Page<Product> findProductsByCategory(ProductCategory category, Integer page, Integer pageSize);

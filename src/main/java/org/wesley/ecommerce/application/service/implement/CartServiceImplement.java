@@ -7,11 +7,10 @@ import org.springframework.stereotype.Service;
 import org.wesley.ecommerce.application.domain.enumeration.ItemStatus;
 import org.wesley.ecommerce.application.domain.model.Cart;
 import org.wesley.ecommerce.application.domain.model.CartItem;
-import org.wesley.ecommerce.application.domain.model.Users;
 import org.wesley.ecommerce.application.domain.repository.CartItemRepository;
 import org.wesley.ecommerce.application.domain.repository.CartRepository;
-import org.wesley.ecommerce.application.exceptions.BusinessException;
-import org.wesley.ecommerce.application.exceptions.InsufficientStockException;
+import org.wesley.ecommerce.application.exceptions.local.BusinessException;
+import org.wesley.ecommerce.application.exceptions.local.InsufficientStockException;
 import org.wesley.ecommerce.application.service.CartService;
 import org.wesley.ecommerce.application.service.ProductService;
 

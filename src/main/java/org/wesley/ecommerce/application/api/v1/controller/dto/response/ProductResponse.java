@@ -1,7 +1,7 @@
 package org.wesley.ecommerce.application.api.v1.controller.dto.response;
 
-import org.wesley.ecommerce.application.domain.enumeration.ProductCategory;
 import org.wesley.ecommerce.application.domain.model.Product;
+import org.wesley.ecommerce.application.domain.model.ProductCategory;
 
 import java.time.LocalDateTime;
 import java.util.Map;
@@ -19,6 +19,7 @@ public record ProductResponse(
         ProductCategory category,
         Double price,
         Double rating,
+        Long totalReviews,
         Integer soldCount,
         Boolean isAvailable,
         LocalDateTime createdAt
@@ -38,25 +39,10 @@ public record ProductResponse(
                 product.getCategory(),
                 product.getPrice(),
                 product.getRating(),
+                product.getTotalReviews(),
                 product.getSoldCount(),
                 product.getIsAvailable(),
                 product.getCreatedAt()
         );
-    }
-
-    public Product from(String code) {
-        var product = new Product();
-        product.setName(name());
-        product.setCoverImageUrl(coverImageUrl());
-        product.setCoverImagePublicId(coverImagePublicId());
-        product.setImageUrls(imageUrls());
-        product.setCode(code);
-        product.setDescription(description());
-        product.setStock(stock());
-        product.setCategory(category());
-        product.setPrice(price());
-        product.setRating(rating());
-
-        return product;
     }
 }

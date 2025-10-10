@@ -4,7 +4,6 @@ import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.wesley.ecommerce.application.domain.enumeration.ProductCategory;
 
 import java.time.LocalDateTime;
 import java.util.HashMap;
@@ -39,7 +38,8 @@ public class Product {
 
     private Integer stock;
 
-    @Enumerated(EnumType.STRING)
+    @ManyToOne
+    @JoinColumn(name = "category_id")
     private ProductCategory category;
 
     @Column(nullable = false)
@@ -47,6 +47,9 @@ public class Product {
 
     @Column(nullable = false, columnDefinition = "default 0")
     private Double rating = 0.0;
+
+    @Column(nullable = false, columnDefinition = "default 0")
+    private Long totalReviews = 0L;
 
     @Column(nullable = false, columnDefinition = "default 0")
     private Integer soldCount = 0;

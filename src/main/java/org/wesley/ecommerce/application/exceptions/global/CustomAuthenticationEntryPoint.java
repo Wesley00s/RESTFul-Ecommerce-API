@@ -1,4 +1,4 @@
-package org.wesley.ecommerce.application.exceptions;
+package org.wesley.ecommerce.application.exceptions.global;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;

@@ -1,4 +1,4 @@
-package org.wesley.ecommerce.application.exceptions;
+package org.wesley.ecommerce.application.exceptions.model;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

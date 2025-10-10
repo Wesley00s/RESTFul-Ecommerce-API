@@ -1,4 +1,4 @@
-package org.wesley.ecommerce.application.exceptions;
+package org.wesley.ecommerce.application.exceptions.local;
 
 public class CartEmptyException extends RuntimeException {
     public CartEmptyException(Long cartId) {

@@ -22,6 +22,8 @@ repositories {
 }
 
 dependencies {
+    implementation 'org.springframework.boot:spring-boot-starter-actuator'
+    implementation 'io.micrometer:micrometer-registry-prometheus'
     implementation 'com.cloudinary:cloudinary-http44:1.39.0'
     implementation 'com.auth0:java-jwt:3.18.3'
     implementation 'org.apache.httpcomponents.client5:httpclient5:5.1'

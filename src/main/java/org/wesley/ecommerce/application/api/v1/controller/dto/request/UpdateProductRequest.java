@@ -1,7 +1,7 @@
 package org.wesley.ecommerce.application.api.v1.controller.dto.request;
 
 import jakarta.validation.constraints.PositiveOrZero;
-import org.wesley.ecommerce.application.domain.enumeration.ProductCategory;
+
 import java.util.List;
 
 
@@ -10,7 +10,7 @@ public record UpdateProductRequest(
     String description,
     @PositiveOrZero(message = "Stock must be zero or greater")
     Integer stock,
-    ProductCategory category,
+    Long categoryId,
     @PositiveOrZero(message = "Price must be zero or greater")
     Double price,
     List<String> publicIdsToDelete

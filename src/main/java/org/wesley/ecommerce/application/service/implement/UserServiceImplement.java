@@ -18,7 +18,7 @@ import org.wesley.ecommerce.application.api.v1.controller.dto.response.LoginResp
 import org.wesley.ecommerce.application.domain.model.Cart;
 import org.wesley.ecommerce.application.domain.model.Users;
 import org.wesley.ecommerce.application.domain.repository.UserRepository;
-import org.wesley.ecommerce.application.exceptions.AuthNotMatchesException;
+import org.wesley.ecommerce.application.exceptions.local.AuthNotMatchesException;
 import org.wesley.ecommerce.application.service.CartService;
 import org.wesley.ecommerce.application.service.UserService;
 
@@ -107,7 +107,7 @@ public class UserServiceImplement implements UserService {
         if (!passwordEncoder.matches(password, user.getPassword())) {
             throw new AuthNotMatchesException();
         }
-        var token = tokenService.generateToken(user.getEmail());
+        var token = tokenService.generateToken(user.getEmail(), user.getId(), user.getName());
 
         var result = new AuthResponse(token, user.getId(), user.getName(), user.getEmail(), user.getUserType());
         addJwtCookieToResponse(result, response);

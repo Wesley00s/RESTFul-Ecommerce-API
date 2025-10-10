@@ -21,6 +21,7 @@ import java.security.spec.X509EncodedKeySpec;
 import java.time.Instant;
 import java.util.Base64;
 import java.util.Date;
+import java.util.UUID;
 
 @Service
 @Slf4j
@@ -74,7 +75,7 @@ public class TokenService {
         return Base64.getDecoder().decode(key);
     }
 
-    public String generateToken(String email) {
+    public String generateToken(String email, UUID userID, String userName) {
         try {
             Algorithm algorithm = Algorithm.RSA256(publicKey, privateKey);
             Instant now = Instant.now();
@@ -83,6 +84,8 @@ public class TokenService {
             return JWT.create()
                     .withIssuer(issuer)
                     .withSubject(email)
+                    .withClaim("userId", userID.toString())
+                    .withClaim("userName", userName)
                     .withIssuedAt(Date.from(now))
                     .withExpiresAt(Date.from(now.plusSeconds(expirationSeconds)))
                     .sign(algorithm);

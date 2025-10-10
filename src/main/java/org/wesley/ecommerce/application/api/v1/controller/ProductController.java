@@ -100,6 +100,18 @@ public class ProductController {
         );
     }
 
+    @GetMapping("/code/{code}")
+    @Operation(
+            summary = "Get a product by code",
+            description = "Retrieve a specific product based on its code"
+    )
+    public ResponseEntity<ProductResponse> getProductByCode(@PathVariable String code) {
+        var product = productService.findProductByCode(code);
+        return ResponseEntity.ok(
+                ProductResponse.fromDTO(product)
+        );
+    }
+
     @DeleteMapping("/{id}")
     @Operation(
             summary = "Remove product",

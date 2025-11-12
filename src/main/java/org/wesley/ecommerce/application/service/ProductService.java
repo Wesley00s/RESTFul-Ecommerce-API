@@ -1,6 +1,5 @@
 package org.wesley.ecommerce.application.service;
 
-import jakarta.validation.Valid;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -8,10 +7,10 @@ import org.wesley.ecommerce.application.api.v1.controller.dto.request.CreateComm
 import org.wesley.ecommerce.application.api.v1.controller.dto.request.CreateReviewRequest;
 import org.wesley.ecommerce.application.api.v1.controller.dto.request.UpdateProductRequest;
 import org.wesley.ecommerce.application.api.v1.controller.dto.request.CreateProductRequest;
-import org.wesley.ecommerce.application.domain.enumeration.ProductCategory;
 import org.wesley.ecommerce.application.domain.enumeration.ProductSortBy;
 import org.wesley.ecommerce.application.domain.enumeration.SortDirection;
 import org.wesley.ecommerce.application.domain.model.Product;
+import org.wesley.ecommerce.application.domain.model.ProductCategory;
 import org.wesley.ecommerce.application.domain.model.Users;
 
 import java.util.List;

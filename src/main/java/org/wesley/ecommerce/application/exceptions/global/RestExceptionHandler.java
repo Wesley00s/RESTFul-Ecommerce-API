@@ -11,6 +11,7 @@ import org.springframework.web.multipart.MultipartException;
 import org.wesley.ecommerce.application.exceptions.local.BusinessException;
 import org.wesley.ecommerce.application.exceptions.local.CartEmptyException;
 import org.wesley.ecommerce.application.exceptions.local.InsufficientStockException;
+import org.wesley.ecommerce.application.exceptions.local.ProductCategoryNotFoundException;
 import org.wesley.ecommerce.application.exceptions.model.ExceptionDetails;
 
 import java.nio.file.AccessDeniedException;
@@ -58,5 +59,10 @@ public class RestExceptionHandler {
     @ExceptionHandler(MultipartException.class)
     public ResponseEntity<ExceptionDetails> handleMultipartException(MultipartException ex) {
         return utils.createErrorResponse(ex, "Upload Error: The request is malformed or incomplete.", HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(ProductCategoryNotFoundException.class)
+    public ResponseEntity<ExceptionDetails> handleProductCategoryNotFoundException(ProductCategoryNotFoundException ex) {
+        return utils.createErrorResponse(ex, "Category not found.", HttpStatus.NOT_FOUND);
     }
 }

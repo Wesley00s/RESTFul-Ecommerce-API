@@ -10,7 +10,7 @@ public record UpdateProductRequest(
     String description,
     @PositiveOrZero(message = "Stock must be zero or greater")
     Integer stock,
-    Long categoryId,
+    String categoryName,
     @PositiveOrZero(message = "Price must be zero or greater")
     Double price,
     List<String> publicIdsToDelete

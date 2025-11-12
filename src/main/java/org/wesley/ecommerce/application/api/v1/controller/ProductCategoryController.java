@@ -32,7 +32,7 @@ public class ProductCategoryController {
             description = "Create a new product category"
     )
     public ResponseEntity<ProductCategory> createProduct(
-            @RequestPart("productCategoryData") @Valid CreateProductCategoryRequest product,
+            @RequestPart("data") @Valid CreateProductCategoryRequest product,
             @RequestPart("image") MultipartFile imageFile
     ) {
         var productToCreate = productCategoryService.create(product, imageFile);

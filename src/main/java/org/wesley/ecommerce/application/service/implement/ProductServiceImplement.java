@@ -14,10 +14,10 @@ import org.wesley.ecommerce.application.api.v1.controller.dto.request.CreateComm
 import org.wesley.ecommerce.application.api.v1.controller.dto.request.CreateReviewRequest;
 import org.wesley.ecommerce.application.api.v1.controller.dto.request.UpdateProductRequest;
 import org.wesley.ecommerce.application.api.v1.controller.dto.request.CreateProductRequest;
-import org.wesley.ecommerce.application.domain.enumeration.ProductCategory;
 import org.wesley.ecommerce.application.domain.enumeration.ProductSortBy;
 import org.wesley.ecommerce.application.domain.enumeration.SortDirection;
 import org.wesley.ecommerce.application.domain.model.Product;
+import org.wesley.ecommerce.application.domain.model.ProductCategory;
 import org.wesley.ecommerce.application.domain.model.Users;
 import org.wesley.ecommerce.application.domain.repository.CartRepository;
 import org.wesley.ecommerce.application.domain.repository.ProductCategoryRepository;
@@ -43,8 +43,8 @@ public class ProductServiceImplement implements ProductService {
     @Override
     @Transactional
     public Product create(CreateProductRequest request, MultipartFile coverImageFile, List<MultipartFile> otherImageFiles) {
-        var category = productCategoryRepository.findById(request.categoryId()).orElseThrow(() ->
-                new ProductCategoryNotFoundException(request.categoryId())
+        ProductCategory category = productCategoryRepository.findByName(((request.categoryName()))).orElseThrow(
+                () -> new ProductCategoryNotFoundException(request.categoryName())
         );
 
         CloudinaryService.UploadResult coverUploadResult = cloudinaryService.uploadFile(coverImageFile);
@@ -117,8 +117,8 @@ public class ProductServiceImplement implements ProductService {
     @Transactional
     @Override
     public Product update(Long id, UpdateProductRequest request, MultipartFile newCoverImage, List<MultipartFile> newImageFiles) {
-        var category = productCategoryRepository.findById(request.categoryId()).orElseThrow(() ->
-                new ProductCategoryNotFoundException(request.categoryId())
+        ProductCategory category = productCategoryRepository.findByName(((request.categoryName()))).orElseThrow(
+                () -> new ProductCategoryNotFoundException(request.categoryName())
         );
 
         Product productExist = productRepository.findById(id)
@@ -155,7 +155,7 @@ public class ProductServiceImplement implements ProductService {
 
         if (request.name() != null) productExist.setName(request.name());
         if (request.price() != null) productExist.setPrice(request.price());
-        if (category != null) productExist.setCategory(category);
+        if (category.getId() != null) productExist.setCategory(category);
         if (request.description() != null) productExist.setDescription(request.description());
         if (request.stock() != null) productExist.setStock(request.stock());
 

@@ -8,6 +8,7 @@ import org.springframework.web.multipart.MultipartFile;
 import org.wesley.ecommerce.application.api.v1.controller.dto.request.*;
 import org.wesley.ecommerce.application.domain.model.ProductCategory;
 import org.wesley.ecommerce.application.domain.repository.ProductCategoryRepository;
+import org.wesley.ecommerce.application.exceptions.local.ProductCategoryNotFoundException;
 import org.wesley.ecommerce.application.service.ProductCategoryService;
 
 import java.util.NoSuchElementException;
@@ -50,7 +51,7 @@ public class ProductCategoryServiceImplement implements ProductCategoryService {
     @Override
     public ProductCategory update(Long id, UpdateProductCategoryRequest request, MultipartFile newImage) {
         var productCategoryExist = productCategoryRepository.findById(id)
-                .orElseThrow(() -> new NoSuchElementException("Product not found for update"));
+                .orElseThrow(() -> new ProductCategoryNotFoundException(request.name()));
 
         if (newImage != null && !newImage.isEmpty()) {
             if (productCategoryExist.getImagePublicId() != null) {

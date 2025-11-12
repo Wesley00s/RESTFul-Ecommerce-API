@@ -19,10 +19,10 @@ import org.wesley.ecommerce.application.api.v1.controller.dto.response.MessageRe
 import org.wesley.ecommerce.application.api.v1.controller.dto.response.PaginationResponse;
 import org.wesley.ecommerce.application.api.v1.controller.dto.request.CreateProductRequest;
 import org.wesley.ecommerce.application.api.v1.controller.dto.response.ProductResponse;
-import org.wesley.ecommerce.application.domain.enumeration.ProductCategory;
 import org.wesley.ecommerce.application.domain.enumeration.ProductSortBy;
 import org.wesley.ecommerce.application.domain.enumeration.SortDirection;
 import org.wesley.ecommerce.application.domain.model.Product;
+import org.wesley.ecommerce.application.domain.model.ProductCategory;
 import org.wesley.ecommerce.application.domain.model.Users;
 import org.wesley.ecommerce.application.service.ProductService;
 
@@ -45,7 +45,7 @@ public class ProductController {
             description = "Create a new product and return the created product's data"
     )
     public ResponseEntity<Product> createProduct(
-            @RequestPart("productData") @Valid CreateProductRequest product,
+            @RequestPart("data") @Valid CreateProductRequest product,
             @RequestPart("coverImage") MultipartFile coverImageFile,
             @RequestPart(value = "otherImages", required = false) List<MultipartFile> otherImageFiles
     ) {

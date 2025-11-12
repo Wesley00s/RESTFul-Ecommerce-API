@@ -1,7 +1,6 @@
 package org.wesley.ecommerce.application.api.v1.controller.dto.response;
 
 import org.wesley.ecommerce.application.domain.model.Product;
-import org.wesley.ecommerce.application.domain.model.ProductCategory;
 
 import java.time.LocalDateTime;
 import java.util.Map;
@@ -16,7 +15,7 @@ public record ProductResponse(
         String code,
         String description,
         Integer stock,
-        ProductCategory category,
+        String categoryName,
         Double price,
         Double rating,
         Long totalReviews,
@@ -36,7 +35,7 @@ public record ProductResponse(
                 product.getCode(),
                 product.getDescription(),
                 product.getStock(),
-                product.getCategory(),
+                product.getCategory().getName(),
                 product.getPrice(),
                 product.getRating(),
                 product.getTotalReviews(),
